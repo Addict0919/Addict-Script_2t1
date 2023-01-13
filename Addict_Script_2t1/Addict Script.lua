@@ -36,7 +36,7 @@ if native.call(0xFCA9373EF340AC0A):__tostring(true) ~= "1.64" then
     menu.notify("This script is outdated, some features may not work as intended.", "WARNING", 12, 0xff0000ff) 
 end
 
-AddictScript = "Addict Script V1.0.0"
+AddictScript = "Addict Script V1.0.0                                                                                          By Candy and Unseemly"
 discord = "discord.gg/zYHtA3xKjy"
 
 local require_files = {"AddictScript/Lib/Utils", "AddictScript/Lib/Menyoo", "AddictScript/Lib/Natives", "AddictScript/Lib/Script_Func", "AddictScript/Lib/Entity_Func", "AddictScript/Lib/Text_Func", "AddictScript/Lib/Memory", "AddictScript/Lib/Player_Func", "AddictScript/Data/NetEventIDs", "AddictScript/Data/NetEventNames", "AddictScript/Data/NotifyColours", "AddictScript/Mapper/ObjectModels", "AddictScript/Data/ScriptEvents", "AddictScript/Mapper/PedModels", "AddictScript/Mapper/VehicleModels", "AddictScript/Data/DataMain", "AddictScript/Data/ModderFlags", "AddictScript/Debug"}
@@ -12147,15 +12147,15 @@ playerfeature["RP Drop"] = menu.add_player_feature("RP Drop", "toggle", playerpa
 	end
 end)
 
-playerfeature["Drop Cards"] = menu.add_player_feature("Drop Cards", "toggle", playerparents["Friendly"].id, function(f, pid)
-local coords = player.get_player_coords(pid)
- coords.z = coords.z + 1.5
-local card = gameplay.get_hash_key("vw_prop_vw_lux_card_01a")
- utilities.request_model(card)
-if streaming.has_model_loaded(card) == false then  
- streaming.request_model(card)
- end
- natives.CREATE_AMBIENT_PICKUP(-1009939663, coords.x, coords.y, coords.z, 0, 1, card, false, true)
+playerfeature["Drop Cards"] = menu.add_player_feature("Drop Cards", "toggle", playerparents["Give Collectibles"].id, function(f, pid)
+	if f.on then
+		menu.create_thread(function()
+				utilities.request_model(0xB4A24065)
+				natives.CREATE_AMBIENT_PICKUP(0x2C014CA6, player.get_player_coords(pid).x, player.get_player_coords(pid).y, player.get_player_coords(pid).z, 0, -1, 0xB4A24065, false, true)
+				streaming.set_model_as_no_longer_needed(0xB4A24065)
+		end, nil)
+	end
+	return HANDLER_CONTINUE
 end)
 
 playerfeature["{Jrukii's}RP Loop"] = menu.add_player_feature("{Jrukii's}RP Loop", "toggle", playerparents["Friendly"].id, function(f, pid) --Credit to Jrukii for making this
