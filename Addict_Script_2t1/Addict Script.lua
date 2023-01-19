@@ -36,7 +36,7 @@ if native.call(0xFCA9373EF340AC0A):__tostring(true) ~= "1.64" then
     menu.notify("This script is outdated, some features may not work as intended.", "WARNING", 12, 0xff0000ff) 
 end
 
-AddictScript = "Addict Script V1.0.0                                                                                          By Candy and Unseemly"
+AddictScript = "Addict Script V1.1                                                                                          By Candy"
 discord = "discord.gg/zYHtA3xKjy"
 
 local require_files = {"AddictScript/Lib/Utils", "AddictScript/Lib/Menyoo", "AddictScript/Lib/Natives", "AddictScript/Lib/Script_Func", "AddictScript/Lib/Entity_Func", "AddictScript/Lib/Text_Func", "AddictScript/Lib/Memory", "AddictScript/Lib/Player_Func", "AddictScript/Data/NetEventIDs", "AddictScript/Data/NetEventNames", "AddictScript/Data/NotifyColours", "AddictScript/Mapper/ObjectModels", "AddictScript/Data/ScriptEvents", "AddictScript/Mapper/PedModels", "AddictScript/Mapper/VehicleModels", "AddictScript/Data/DataMain", "AddictScript/Data/ModderFlags", "AddictScript/Debug"}
@@ -2984,7 +2984,7 @@ feature["Sainan Mode"] = menu.add_feature("Sainan Mode", "toggle", localparents[
 	end
 end)
 
-feature["POV: Black Friday"] = menu.add_feature("POV: Black Friday", "toggle", localparents["Trolling"].id, function(f) -- Skidded from Toph (very epic coder) credits to him
+feature["POV: Black Friday"] = menu.add_feature("POV: Black Friday", "toggle", localparents["Trolling"].id, function(f)
 	natives.SET_RIOT_MODE_ENABLED(f.on)
 end)
 
@@ -2992,7 +2992,7 @@ localparents["Friendly"] = menu.add_feature("Friendly", "parent", localparents["
 
 localparents["Give Collectibles"] = menu.add_feature("Give Collectibles", "parent", localparents["Friendly"].id)
 
-feature["Give RP"] = menu.add_feature("Give RP", "action", localparents["Give Collectibles"].id, function(f) -- Skidded from Prism, credits to him
+feature["Give RP"] = menu.add_feature("Give RP", "action", localparents["Give Collectibles"].id, function(f)
 	for pid = 0, 31 do
 		if player.is_player_valid(pid) then
 			script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 5, 0, 1, 1, 1})
@@ -3002,11 +3002,13 @@ feature["Give RP"] = menu.add_feature("Give RP", "action", localparents["Give Co
 				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 1, i, 1, 1, 1})
 				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 3, i, 1, 1, 1})
 				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 10, i, 1, 1, 1})
+				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 16, i, 1, 1, 1})
 				system.yield(1)
 			end
 			for i = 0, 1 do
 				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 2, i, 1, 1, 1})
 				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 6, i, 1, 1, 1})
+				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 17, i, 1, 1, 1})
 				system.yield(1)
 			end
 			for i = 0, 19 do
@@ -3139,6 +3141,28 @@ feature["Give Tuner Collectibles"] = menu.add_feature("Give Tuner Collectibles",
 	end
 end)
 
+feature["Give Snowmen"] = menu.add_feature("Give Snowmen", "action", localparents["Friendly"].id, function(f)
+	for pid = 0, 31 do
+		if player.is_player_valid(pid) then
+			for i = 0, 9 do
+				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {1, 16, i, 1, 1, 1})
+			end
+		end
+		system.yield(0)
+	end
+end)
+
+feature["Give G's Caches"] = menu.add_feature("Give G's Caches", "action", localparents["Friendly"].id, function(f)
+	for pid = 0, 31 do
+		if player.is_player_valid(pid) then
+			for i = 0, 9 do
+				script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {1, 17, i, 1, 1, 1})
+			end
+		end
+		system.yield(0)
+	end
+end)
+
 feature["Rank Everyone UP"] = menu.add_feature("Rank Everyone UP", "toggle", localparents["Friendly"].id, function(f) --Credit to Jrukii
 while f.on do
 system.yield(0)
@@ -3186,10 +3210,14 @@ feature["Never Wanted"] = menu.add_feature("Never Wanted", "toggle", localparent
     end)
 
 feature["Give All Weapons"] = menu.add_feature("Give All Weapons", "action", localparents["Friendly"].id, function(f)
+system.yield(0)
 for pid = 0, 31 do
+if player.is_player_valid(pid) then
 	for i = 1, #DataMain.all_weapon_hashes do
 		weapon.give_delayed_weapon_to_ped(player.get_player_ped(pid), DataMain.all_weapon_hashes[i], 0, false)
+		system.yield(500)
 		weapon.set_ped_ammo(player.get_player_ped(pid), DataMain.all_weapon_hashes[i], select(2, weapon.get_max_ammo(player.get_player_ped(pid), DataMain.all_weapon_hashes[i])))
+	end
 	end
 	end
 end)
@@ -10986,6 +11014,25 @@ playerfeature["Crash Car"] = menu.add_player_feature("Crash Car", "action", play
 	end
 end)
 
+playerfeature["Kill Engine"] = menu.add_player_feature("Kill Engine", "action", playerparents["Vehicle Options"].id, function(f, pid)
+	if player.is_player_in_any_vehicle(pid) then
+		utilities.request_control(player.get_player_vehicle(pid))
+		vehicle.set_vehicle_engine_health(player.get_player_vehicle(pid), -4000)
+	else
+		menu.notify("Player is not in a vehicle", AddictScript, 3, 211)
+	end
+end)
+
+playerfeature["Destroy Vehicle"] = menu.add_player_feature("Destroy Vehicle", "action", playerparents["Vehicle Options"].id, function(f, pid)
+	if player.is_player_in_any_vehicle(pid) then
+	utilities.request_control(player.get_player_vehicle(pid))
+	natives.DECOR_SET_INT(player.get_player_vehicle(pid), "Not_Allow_As_Saved_Veh", 3)
+    natives.NETWORK_EXPLODE_VEHICLE(player.get_player_vehicle(pid), 0, 1);
+	else
+		menu.notify("Player is not in a vehicle", AddictScript, 3, 211)
+	end
+end)
+
 playerfeature["Yeet"] = menu.add_player_feature("Yeet", "action", playerparents["Vehicle Options"].id, function(f, pid)
 	if player.is_player_in_any_vehicle(pid) then
 		utilities.request_control(player.get_player_vehicle(pid))
@@ -11603,8 +11650,9 @@ playerfeature["Atomize"] = menu.add_player_feature("Atomize", "action", playerpa
 	end
 end)
 
-playerfeature["Electrocute Player"] = menu.add_player_feature("Electrocute Player", "action", playerparents["Trolling"].id, function(f, pid)
+playerfeature["Taze Player"] = menu.add_player_feature("Taze Player", "toggle", playerparents["Trolling"].id, function(f, pid)
 	gameplay.shoot_single_bullet_between_coords(player.get_player_coords(pid) + v3(0, 0, 2), player.get_player_coords(pid), 0, gameplay.get_hash_key("weapon_stungun"), player.get_player_ped(player.player_id()), true, false, 10000)
+	system.yield(2500)
 end)
 
 playerfeature["Atomize"] = menu.add_player_feature("Atomize", "action", playerparents["Trolling"].id, function(f, pid)
@@ -11983,11 +12031,13 @@ playerfeature["Give RP"] = menu.add_player_feature("Give RP", "action", playerpa
 		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 1, i, 1, 1, 1})
 		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 3, i, 1, 1, 1})
 		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 10, i, 1, 1, 1})
+		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 16, i, 1, 1, 1})
 		system.yield(1)
 	end
 	for i = 0, 1 do
 		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 2, i, 1, 1, 1})
 		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 6, i, 1, 1, 1})
+		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {pid, 17, i, 1, 1, 1})
 		system.yield(1)
 	end
 	for i = 0, 19 do
@@ -12054,6 +12104,18 @@ end)
 playerfeature["Give Tuner Collectibles"] = menu.add_player_feature("Give Tuner Collectibles", "action", playerparents["Give Collectibles"].id, function(f, pid)
 	for i = 0, 9 do
 		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {1, 4, i, 1, 1, 1})
+	end
+end)
+
+playerfeature["Give Snowmen"] = menu.add_player_feature("Give Snowmen", "action", playerparents["Give Collectibles"].id, function(f, pid)
+	for i = 0, 9 do
+		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {1, 16, i, 1, 1, 1})
+	end
+end)
+
+playerfeature["Give G's Caches"] = menu.add_player_feature("Give test", "action", playerparents["Give Collectibles"].id, function(f, pid)
+	for i = 0, 9 do
+		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {1, 17, i, 1, 1, 1})
 	end
 end)
 
