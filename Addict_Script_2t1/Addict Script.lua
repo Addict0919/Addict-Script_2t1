@@ -9895,7 +9895,7 @@ return HANDLER_POP
 			return
 		end
 	end
-end
+end)
 
 playerparents["Player Crashes"] = menu.add_player_feature("Player Crashes", "parent", playerparents["Crashes And Kicks"]).id
 
