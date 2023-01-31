@@ -36,7 +36,7 @@ if native.call(0xFCA9373EF340AC0A):__tostring(true) ~= "1.64" then
     menu.notify("This script is outdated, some features may not work as intended.", "WARNING", 12, 0xff0000ff) 
 end
 
-AddictScript = "Addict Script V1.2                                                                                          By Candy"
+AddictScript = "Addict Script V1.3                                                                                          By Candy"
 
 local require_files = {"AddictScript/Lib/Utils", "AddictScript/Lib/Menyoo", "AddictScript/Lib/Natives", "AddictScript/Lib/Script_Func", "AddictScript/Lib/Entity_Func", "AddictScript/Lib/Text_Func", "AddictScript/Lib/Memory", "AddictScript/Lib/Player_Func", "AddictScript/Data/NetEventIDs", "AddictScript/Data/NetEventNames", "AddictScript/Data/NotifyColours", "AddictScript/Mapper/ObjectModels", "AddictScript/Data/ScriptEvents", "AddictScript/Mapper/PedModels", "AddictScript/Mapper/VehicleModels", "AddictScript/Data/DataMain", "AddictScript/Data/ModderFlags", "AddictScript/Debug"}
 
@@ -8398,7 +8398,7 @@ do
 			if player.is_player_valid(player.player_id()) then
 				if f.value == 0 then
 					if utils.file_exists(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles, xml_files[i])) then
-						local vehicle_ = xml_handler.spawn_vehicle(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles, xml_files[i]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
+						local vehicle_ = xml_handler.request_model(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles, xml_files[i]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
 						if vehicle_ ~= nil then
 							all_spawned_xml_vehicles[#all_spawned_xml_vehicles + 1] = vehicle_
 							network.request_control_of_entity(vehicle_)
@@ -8444,7 +8444,7 @@ do
 				if player.is_player_valid(player.player_id()) then
 					if f.value == 0 then
 						if utils.file_exists(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles .. "\\" .. xml_dirs[i], xml_files[b])) then
-							local vehicle_ = xml_handler.spawn_vehicle(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles .. "\\" .. xml_dirs[i], xml_files[b]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
+							local vehicle_ = xml_handler.request_model(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles .. "\\" .. xml_dirs[i], xml_files[b]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
 							if vehicle_ ~= nil then
 								all_spawned_xml_vehicles[#all_spawned_xml_vehicles + 1] = vehicle_
 								network.request_control_of_entity(vehicle_)
@@ -8537,7 +8537,7 @@ menu.add_player_feature("Wide Crash (R0) Can Freeze Stand", "toggle", playerpare
 		end
 		if yo_momma then
 			network.request_control_of_entity(yo_momma)
-			utilities.hard_remove_entity(yo_momma)
+			entity_func.hard_remove_entity(yo_momma)
 		end
 		system.wait(1)
 		script.trigger_script_event(-371781708, pid, {player.player_id(), pid, pid, 1403904671})
@@ -8593,13 +8593,13 @@ menu.add_player_feature("Wide Crash (R0) Can Freeze Stand", "toggle", playerpare
 		script.trigger_script_event(962740265, pid, {-72614, 63007, 59027, -12012, -26996, 33398, pid})
 		script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, -72614, 63007, 59027, -12012, -26996, 33398, pid})
 			utilities.request_model(1349725314)
-			local vehicle_ = vehicle.create_vehicle(1349725314, utilities.offset_coords_forward(player.get_player_coords(pid), player.get_player_heading(pid), 5), player.get_player_coords(pid).z, true, false)
+			local vehicle_ = vehicle.create_vehicle(1349725314, utilities.offset_coords(player.get_player_coords(pid), player.get_player_heading(pid), 5), player.get_player_coords(pid).z, true, false)
 			network.request_control_of_entity(vehicle_)
 			vehicle.set_vehicle_mod_kit_type(vehicle_, 0)
 			vehicle.set_vehicle_mod(vehicle_, 48, 0, false)
 			system.wait(25)
-			utilities.request_control_silent(vehicle_)
-			utilities.hard_remove_entity(vehicle_)
+			utilities.request_control(vehicle_)
+			entity_func.hard_remove_entity(vehicle_)
 		script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, 23243, 5332, 3324, pid})
 		script.trigger_script_event(962740265, pid, {player.player_id(), 23243, 5332, 3324, pid})
 		script.trigger_script_event(962740265, pid, {player.player_id(), pid, 30583, pid, pid, pid, pid, -328966, 10128444})
@@ -8694,26 +8694,25 @@ pos = player.get_player_coords(pid)
 pos.x = pos.x + 2
 newRope = rope.add_rope(pos,v3(0,0,10),1,1,0,1,1,false,false,false,1.0,false)
 pos = player.get_player_coords(pid)
-car = spawn_vehicle(0X187D938D,pos,0)
+car = utilities.request_model(0X187D938D,pos,0)
 local pos = player.get_player_coords(pid)
 local ppos = player.get_player_coords(pid)
 pos.x = pos.x+5
 ppos.z = ppos.z+1
-pedp=player.get_player_ped(pid)
-cargobob = spawn_vehicle(    2132890591,pos,0)
-kur =Cped(26,2727244247,ppos,0)
+pedp = player.get_player_ped(pid)
+cargobob = utilities.request_model(2132890591, pos ,0)
+kur = ped.create_ped(0, 2727244247, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 entity.set_entity_god_mode(kur,true)
 newRope = rope.add_rope(pos,v3(0,0,0),1,1,0.0000000000000000000000000000000000001,1,1,true,true,true,1.0,true)
-rope.attach_entities_to_rope(newRope,cargobob,kur,entity.get_entity_coords(cargobob),entity.get_entity_coords(kur),2 ,0,0,"Center","Center")
 system.wait(1)
-			local vehicles = utilities.get_table_of_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
+			local vehicles = entity_func.remove_player_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
 				menu.notify("5G Crash: " .. #vehicles .. " valid subjects found! Executing Crash...", AddictScript, 4, 0x64FA7800)
 				system.wait(1)
 					utilities.request_model(2971866336)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 					utilities.request_model(3852654278)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				entity.set_entity_god_mode(tow_truck_5g_vehicle, true)
 				entity.set_entity_visible(tow_truck_5g_vehicle, false)
 					system.wait(1)
@@ -8721,8 +8720,8 @@ system.wait(1)
 					network.request_control_of_entity(player.get_player_ped(pid))
 					ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
-				utilities.request_control_silent(tow_truck_5g_vehicle)
-				utilities.hard_remove_entity(tow_truck_5g_vehicle)
+				utilities.request_control(tow_truck_5g_vehicle)
+				entity_func.hard_remove_entity(tow_truck_5g_vehicle)
 		menu.notify("Wide Lobby Crash executed successfully.")
 	else
 		menu.notify("Invalid Player.")
@@ -8734,7 +8733,7 @@ end)
 
 
 menu.add_player_feature("Crash - Object Crash" , "toggle", playerparents["Lobby Crashes"], function(f, pid)
-	while f.on do
+	while f do
 		system.yield(0)
 		if player.is_player_valid(pid) then
         pos = player.get_player_coords(player.player_id())
@@ -8983,15 +8982,14 @@ menu.add_player_feature("Crash - Math Crash x3", "toggle", playerparents["Lobby 
 		pos.x = pos.x+5
 		ppos.z = ppos.z+1
 		pedp=player.get_player_ped(pid)
-		cargobob = spawn_vehicle(    2132890591,pos,0)
-		kur =Cped(26,2727244247,ppos,0)
+		cargobob = utilities.request_model(2132890591, pos, 0)
+		kur = ped.create_ped(0, 2727244247, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 		entity.set_entity_god_mode(kur,true)
 		newRope = rope.add_rope(pos,v3(0,0,0),1,1,0.0000000000000000000000000000000000001,1,1,true,true,true,1.0,true)
-		rope.attach_entities_to_rope(newRope,cargobob,kur,entity.get_entity_coords(cargobob),entity.get_entity_coords(kur),2 ,0,0,"Center","Center")
-		utilities.request_control_silent(vehicle_)
-		utilities.request_control_silent(ped_)
-		utilities.hard_remove_entity(vehicle_)
-		utilities.hard_remove_entity(ped_)
+		utilities.request_control(vehicle_)
+		utilities.request_control(ped_)
+		entity_func.hard_remove_entity(vehicle_)
+		entity_func.hard_remove_entity(ped_)
 		rope.delete_rope(rope_)
 		rope.rope_unload_textures()
 		menu.notify("Math Crash executed successfully.", AddictScript)
@@ -9098,14 +9096,14 @@ menu.add_player_feature("Crash - 5G Tow Truck Spam", "toggle", playerparents["Lo
 	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) then
-			local vehicles = utilities.get_table_of_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
+			local vehicles = entity_func.remove_player_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
 				menu.notify("5G Crash: " .. #vehicles .. " valid subjects found! Executing Crash...", AddictScript, 4, 0x64FA7800)
 				system.wait(1)
 					utilities.request_model(2971866336)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 					utilities.request_model(3852654278)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				entity.set_entity_god_mode(tow_truck_5g_vehicle, true)
 				entity.set_entity_visible(tow_truck_5g_vehicle, false)
 					system.wait(1)
@@ -9113,8 +9111,8 @@ menu.add_player_feature("Crash - 5G Tow Truck Spam", "toggle", playerparents["Lo
 					network.request_control_of_entity(player.get_player_ped(pid))
 					ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
-				utilities.request_control_silent(tow_truck_5g_vehicle)
-				utilities.hard_remove_entity(tow_truck_5g_vehicle)
+				utilities.request_control(tow_truck_5g_vehicle)
+				entity_func.hard_remove_entity(tow_truck_5g_vehicle)
 			menu.notify("Math Crash executed successfully.", AddictScript)
 		else
 			f.on = false
@@ -9127,7 +9125,7 @@ end)
 menu.add_player_feature("Crash - 5G Tow Truck", "action_value_str", playerparents["Lobby Crashes"], function(f, pid)
 	if player.is_player_valid(pid) then
 		if network.get_player_player_is_spectating(player.player_id()) == pid or utilities.get_distance_between(player.get_player_ped(player.player_id()), player.get_player_ped(pid)) < 100 then
-			local vehicles = utilities.get_table_of_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
+			local vehicles = entity_func.remove_player_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
 
 			for i = 1, #vehicles do
 				network.request_control_of_entity(vehicles[i])
@@ -9139,10 +9137,10 @@ menu.add_player_feature("Crash - 5G Tow Truck", "action_value_str", playerparent
 
 				if f.value == 0 then
 					utilities.request_model(2971866336)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				elseif f.value == 1 then
 					utilities.request_model(3852654278)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				end
 				entity.set_entity_god_mode(tow_truck_5g_vehicle, true)
 				entity.set_entity_visible(tow_truck_5g_vehicle, false)
@@ -9165,16 +9163,16 @@ menu.add_player_feature("Crash - 5G Tow Truck", "action_value_str", playerparent
 					ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 					for i = 1, #vehicles do
 						network.request_control_of_entity(vehicles[i])
-						entity.set_entity_coords_no_offset(vehicles[i], utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10))
+						entity.set_entity_coords_no_offset(vehicles[i], utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10))
 					end
 				end
 
-				utilities.request_control_silent(tow_truck_5g_vehicle)
-				utilities.hard_remove_entity(tow_truck_5g_vehicle)
+				utilities.request_control(tow_truck_5g_vehicle)
+				entity_func.hard_remove_entity(tow_truck_5g_vehicle)
 
 				for i = 1, #vehicles do
-					utilities.request_control_silent(vehicles[i])
-					utilities.hard_remove_entity(vehicles[i])
+					utilities.request_control(vehicles[i])
+					entity_func.hard_remove_entity(vehicles[i])
 				end
 
 				menu.notify("5G Tow Truck Crash executed successfully.", AddictScript)
@@ -9555,7 +9553,7 @@ menu.add_player_feature("Crash - Bad Vehicle Parachute", "toggle", playerparents
 		utilities.request_model(941494461)
 		local pos = player.get_player_coords(player.player_id())
 		local parachute_vehicle = vehicle.create_vehicle(941494461, player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), true, false)
-		utilities.request_control_silent(parachute_vehicle)
+		utilities.request_control(parachute_vehicle)
 		entity.set_entity_god_mode(parachute_vehicle, true)
 		vehicle.set_vehicle_parachute_model(parachute_vehicle, 1913502601)
 		ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), parachute_vehicle, -1)
@@ -9566,8 +9564,8 @@ menu.add_player_feature("Crash - Bad Vehicle Parachute", "toggle", playerparents
 			vehicle.set_vehicle_parachute_active(parachute_vehicle, true)
 		end
 		if parachute_vehicle then
-			utilities.request_control_silent(parachute_vehicle)
-			utilities.hard_remove_entity(parachute_vehicle)
+			utilities.request_control(parachute_vehicle)
+			entity_func.hard_remove_entity(parachute_vehicle)
 		end
 		entity.set_entity_coords_no_offset(player.get_player_ped(player.player_id()), pos)
 		menu.notify("Bad Vehicle Parachute Crash executed successfully.", AddictScript)
@@ -9873,14 +9871,6 @@ end)
 
 ]]
 
-bad_para_crash = menu.add_player_feature("Virgin Crash", "toggle", playerparents["Lobby Crashes"], function(f, pid)
-pos = player.get_player_coords(pid)
-cargobob = spawn_vehicle(0XFCFCB68B,pos,0)
-vehicle = spawn_vehicle(0X187D938D,pos,0)
-newRope = rope.add_rope(pos,v3(0,0,10),1,1,0,1,1,false,false,false,1.0,false)
-rope.attach_entities_to_rope(newRope,cargobob,vehicle,entity.get_entity_coords(cargobob),entity.get_entity_coords(vehicle),2 ,0,0,"Center","Center")
-system.wait(100)
-end)
 
 menu.add_player_feature("^^^^^STAY FAR FROM PLAYER'S^^^^^", "toggle", playerparents["Lobby Crashes"], function(f, pid)
 	while f.on do
@@ -9905,9 +9895,7 @@ return HANDLER_POP
 			return
 		end
 	end
-end)
-
-
+end
 
 playerparents["Player Crashes"] = menu.add_player_feature("Player Crashes", "parent", playerparents["Crashes And Kicks"]).id
 
@@ -9933,17 +9921,17 @@ menu.add_player_feature("Crash - Lag with Hydras", "toggle", playerparents["Play
 		system.yield(10)
 		local velocity = entity.get_entity_velocity(player.get_player_vehicle(player.player_id()))
 		system.yield(10)
-		tableOfVehicles[i] = vehicle.create_vehicle(0, 0x3F039CBA, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+		tableOfVehicles[i] = vehicle.create_vehicle(0, 0x3F039CBA, pos + v3(300, 300, 300), 0, true, false)
 		network.request_control_of_entity(tableOfVehicles[i])
 		entity.attach_entity_to_entity(tableOfVehicles[i], veh_hash, 0, v3(0, 0, 0), v3(0, 0, 0), true, false, true, 0, true)
 		entity.set_entity_rotation(player.get_player_vehicle(player.player_id()), v3(cam.get_gameplay_cam_rot().x, 0, cam.get_gameplay_cam_rot().z))
 		entity.set_entity_velocity(player.get_player_vehicle(player.player_id()), velocity)
-		tableOfVehicles[i + 5] = vehicle.create_vehicle(0, 0x856CFB02, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+		tableOfVehicles[i + 5] = vehicle.create_vehicle(0, 0x856CFB02, pos + v3(300, 300, 300), 0, true, false)
 		network.request_control_of_entity(tableOfVehicles[i + 5])
 		entity.attach_entity_to_entity(tableOfVehicles[i + 5], veh_hash, 0, v3(0, 0, 0), v3(0, 0, 0), true, false, true, 0, true)
 		entity.set_entity_rotation(player.get_player_vehicle(player.player_id()), v3(cam.get_gameplay_cam_rot().x, 0, cam.get_gameplay_cam_rot().z))
 		entity.set_entity_velocity(player.get_player_vehicle(player.player_id()), velocity)
-		tableOfVehicles[i + 10] = vehicle.create_vehicle(0, 0x2D7030F3, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+		tableOfVehicles[i + 10] = vehicle.create_vehicle(0, 0x2D7030F3, pos + v3(300, 300, 300), 0, true, false)
 		network.request_control_of_entity(tableOfVehicles[i + 10])
 		entity.attach_entity_to_entity(tableOfVehicles[i + 10], veh_hash, 0, v3(0, 0, 0), v3(0, 0, 0), true, false, true, 0, true)
 		entity.set_entity_velocity(player.get_player_vehicle(player.player_id()), v3(cam.get_gameplay_cam_rot().x, 0, cam.get_gameplay_cam_rot().z))
@@ -10028,19 +10016,19 @@ menu.notify("Sent crash get ready (dont spectate)!", "Wade Crash", 10, ff0000)
 for i = 0 , 30 do 
 ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 pos = player.get_player_coords(pid)
-npc = Cped(26, 0x92991B72,pos, 0)
+npc = ped.create_ped(0, 0x92991B72, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 system.wait(100)
 end
 for i = 0 , 30 do 
 ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 pos = player.get_player_coords(pid)
-npc = Cped(26, 0x92991B72,pos, 0)
+npc = ped.create_ped(0, 0x92991B72, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 system.wait(100)
 end
 for i = 0 , 30 do 
 ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 pos = player.get_player_coords(pid)
-npc = Cped(26, 0x92991B72,pos, 0)
+npc = ped.create_ped(0, 0x92991B72, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 system.wait(100)
 end	
 menu.notify("Crash complete!(dont spectate if there still here)", 10, ff0000)
@@ -10073,10 +10061,10 @@ menu.add_player_feature("Crash - Rebound" , "toggle", playerparents["Player Cras
                 util.yield(100)
                 TASK.TASK_VEHICLE_HELI_PROTECT(jesus, veh, ped, 10.0, 0, 10, 0, 0)
                 util.yield(1000)
-				utilities.request_control_silent(jesus)
-				utilities.hard_remove_entity(jesus)
-				utilities.request_control_silent(veh)
-				utilities.hard_remove_entity(veh)
+				utilities.request_control(jesus)
+				entity_func.hard_remove_entity(jesus)
+				utilities.request_control(veh)
+				entity_func.hard_remove_entity(veh)
             end  
         streaming.set_model_as_no_longer_needed(mdl)
         streaming.set_model_as_no_longer_needed(veh_mdl)
@@ -10264,7 +10252,7 @@ menu.add_player_feature("Crash - Yo Momma", "toggle", playerparents["Player Cras
 		end
 		if yo_momma then
 			network.request_control_of_entity(yo_momma)
-			utilities.hard_remove_entity(yo_momma)
+			entity_func.hard_remove_entity(yo_momma)
 		end
 		system.wait(1)
 		script.trigger_script_event(-371781708, pid, {player.player_id(), pid, pid, 1403904671})
@@ -10459,8 +10447,8 @@ menu.add_player_feature("Crash - Bad Outfit Component", "toggle", playerparents[
 			ped.set_ped_component_variation(ped_, 10, 132, 0, 0)
 			ped.set_ped_component_variation(ped_, 11, 393, 0, 0)
 			system.wait(2000)
-			utilities.request_control_silent(ped_)
-			utilities.hard_remove_entity(ped_)
+			utilities.request_control(ped_)
+			entity_func.hard_remove_entity(ped_)
 			menu.notify("Bad Outfit Component Crash executed successfully.", AddictScript)
 		else
 			menu.notify("You have to spectate the target or be near them in order for this feature to work.", AddictScript, 5, 211)
@@ -10472,7 +10460,7 @@ end)
 ]]
 menu.add_player_feature("Crash - Invalid Vehicle Task", "toggle", playerparents["Player Crashes"], function(f, pid)
     if player.is_player_valid(pid) then
-		utilities.request_control_silent(player.get_player_vehicle(pid))
+		utilities.request_control(player.get_player_vehicle(pid))
 		for i = 1, 3 do
 			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 15, 10)
 			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 16, 10)
@@ -10612,14 +10600,14 @@ menu.add_player_feature("Crash - Bad Vehicle Modification", "toggle", playerpare
 				entity.set_entity_coords_no_offset(vehicle_4, player.get_player_coords(pid))
 			end
 			system.wait(4000)
-			utilities.request_control_silent(vehicle_1)
-			utilities.request_control_silent(vehicle_2)
-			utilities.request_control_silent(vehicle_3)
-			utilities.request_control_silent(vehicle_4)
-			utilities.hard_remove_entity(vehicle_1)
-			utilities.hard_remove_entity(vehicle_2)
-			utilities.hard_remove_entity(vehicle_3)
-			utilities.hard_remove_entity(vehicle_4)
+			utilities.request_control(vehicle_1)
+			utilities.request_control(vehicle_2)
+			utilities.request_control(vehicle_3)
+			utilities.request_control(vehicle_4)
+			entity_func.hard_remove_entity(vehicle_1)
+			entity_func.hard_remove_entity(vehicle_2)
+			entity_func.hard_remove_entity(vehicle_3)
+			entity_func.hard_remove_entity(vehicle_4)
 			menu.notify("Bad Vehicle Modification Crash executed successfully.", AddictScript)
 		else
 			menu.notify("You have to spectate the target or be near them in order for this feature to work.", AddictScript, 5, 211)
@@ -10648,34 +10636,17 @@ menu.add_player_feature("Crash - Bad Sync Tree", "toggle", playerparents["Player
 			entity.set_entity_coords_no_offset(main_sync_handler, v3(player.get_player_coords(pid).x + math.random(-1, 1), player.get_player_coords(pid).y + math.random(-1, 1), player.get_player_coords(pid).z + math.random(-1, 1)))
 		end
 		network.request_control_of_entity(main_sync_handler)
-		utilities.hard_remove_entity(main_sync_handler)
+		entity_func.hard_remove_entity(main_sync_handler)
 		for i = 1, #sync_tree_children do
 			if entity.is_an_entity(sync_tree_children[i]) then
-				utilities.request_control_silent(sync_tree_children[i])
-				utilities.hard_remove_entity(sync_tree_children[i])
+				utilities.request_control(sync_tree_children[i])
+				entity_func.hard_remove_entity(sync_tree_children[i])
 			end
 		end
 		menu.notify("Bad Sync Tree Crash executed successfully.", AddictScript)
 	else
 		menu.notify("Invalid Player.", AddictScript, 3, 211)
 	end
-end)
-
-aio_crash = menu.add_player_feature("AIO-Crash", "toggle", playerparents["Player Crashes"], function(f, pid)
-mypos = player.get_player_coords(player.player_id())
-pedmy = player.get_player_ped(player.player_id())
-entity.set_entity_coords_no_offset(pedmy, v3(0,0,4000))
-entity.freeze_entity(pedmy, true)
-for i = 0 ,1 do
-fakecrash(pid)
-poolcrashplayer(pid)
-invalidmodelcrashplayer(pid)
-soundcrashplayer(pid)
-attachcrashplayer(pid)
---secrashplayer(pid)--
-end
-entity.set_entity_coords_no_offset(pedmy, mypos)
-entity.freeze_entity(pedmy, false)
 end)
 
 --[[
@@ -10756,7 +10727,7 @@ menu.add_player_feature("Kick - Ped Component 2 Desync", "action", playerparents
 			ped.set_ped_head_blend_data(ped_, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			system.wait(3000)
 			script.trigger_script_event(-227800145, pid, {pid, math.random(32, 23647483647), math.random(-23647, 212347), 1, 115, math.random(-2321647, 21182412647), math.random(-2147483647, 2147483647), 26249, math.random(-1257483647, 23683647), 2623, 25136})
-			utilities.request_control_silent(ped_)
+			utilities.request_control(ped_)
 			entity.delete_entity(ped_)
 			menu.notify("Ped Component 2 Desync executed successfully.", AddictScript)
 		else
@@ -11003,7 +10974,7 @@ playerfeature["Vehicle Kick"]:set_str_data({"Kick", "Hard Lock"})
 playerfeature["Crash Car"] = menu.add_player_feature("Crash Car", "action", playerparents["Vehicle Options"].id, function(f, pid)
 	if player.is_player_in_any_vehicle(pid) then
 		utilities.request_model(165521376)
-		local object_ = object.create_object(165521376, utilities.offset_coords_forward(player.get_player_coords(pid), player.get_player_heading(pid), 5), true, false)
+		local object_ = object.create_object(165521376, utilities.offset_coords(player.get_player_coords(pid), player.get_player_heading(pid), 5), true, false)
 		entity.set_entity_rotation(object_, v3(0, 0, entity.get_entity_rotation(player.get_player_vehicle(pid)).z + 90))
 		entity.set_entity_visible(object_, false)
 		system.wait(2000)
@@ -11049,7 +11020,7 @@ playerfeature["Steal Vehicle"] = menu.add_player_feature("Steal Vehicle", "actio
 			utilities.request_model(0xB5CF80E4)
 			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 			local ped_ = ped.create_ped(0, 0xB5CF80E4, player.get_player_coords(pid) + v3(0, 0, 10), player.get_player_heading(pid), true, false)
-			utilities.request_control_silent(ped_)
+			utilities.request_control(ped_)
 			ped.set_ped_combat_attributes(ped_, 3, false)
 			ped.set_ped_into_vehicle(ped_, player_vehicle, -1)
 			gameplay.shoot_single_bullet_between_coords(entity.get_entity_coords(ped_), entity.get_entity_coords(ped_), 0, gameplay.get_hash_key("weapon_pistol"), player.get_player_ped(pid), false, true, 100)
@@ -11106,7 +11077,7 @@ playerfeature["Vehicle Godmode"] = menu.add_player_feature("Vehicle Godmode", "v
 		utilities.request_control(player.get_player_vehicle(pid))
 		while f.on do
 			system.yield(0)
-			utilities.request_control_silent(player.get_player_vehicle(pid))
+			utilities.request_control(player.get_player_vehicle(pid))
 			if f.value == 0 then
 				entity.set_entity_god_mode(player.get_player_vehicle(pid), true)
 			else
@@ -11115,7 +11086,7 @@ playerfeature["Vehicle Godmode"] = menu.add_player_feature("Vehicle Godmode", "v
 		end
 	end
 	if not f.on then
-		utilities.request_control_silent(player.get_player_vehicle(pid))
+		utilities.request_control(player.get_player_vehicle(pid))
 		if f.value == 0 then
 			entity.set_entity_god_mode(player.get_player_vehicle(pid), false)
 		else
@@ -11680,7 +11651,7 @@ end)
 playerfeature["Make Nearby Peds Hostile"] = menu.add_player_feature("Make Nearby Peds Hostile", "toggle", playerparents["Trolling"].id, function(f, pid)
 	while f.on do
 		system.yield(500)
-		local peds = utilities.get_table_of_entities(ped.get_all_peds(), 25, 100, true, true, player.get_player_coords(pid))
+		local peds = entity_func.remove_player_entities(ped.get_all_peds(), 25, 100, true, true, player.get_player_coords(pid))
     	for i = 1, #peds do
 			ped.set_ped_combat_ability(peds[i], 2)
 			ped.set_ped_combat_attributes(peds[i], 5, true)
