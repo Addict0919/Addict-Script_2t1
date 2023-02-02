@@ -10,11 +10,6 @@ if AddictScript then
 	return
 end
 
-if not debug.getinfo(1).source:find("PopstarDevs") then
-	menu.notify("Incompatible script wrapper detected\nIf you are getting this error, please make sure you are using the latest version of 2Take1Menu\nIf this error keeps showing up, contact the developer or reinstall the script and/or 2Take1", "Initialization Cancelled", 24, 0xff0000ff) 
-	return
-end
-
 if not menu.is_trusted_mode_enabled(2) then
 	menu.notify("Some features in this script require Locals/Globals Trusted Mode\nThe initialization will proceed, but some features may not work", "Trusted Mode", 12, 0xff0000ff)
 end
@@ -32,11 +27,11 @@ if not menu.is_trusted_mode_enabled(16) then
 	menu.notify("A bunch features in this script require Memory Trusted Mode\nThe initialization will proceed, but some features may not work", "Trusted Mode", 12, 0xff0000ff)
 end
 
-if native.call(0xFCA9373EF340AC0A):__tostring(true) ~= "1.64" then
+if native.call(0xFCA9373EF340AC0A):__tostring(true) ~= "1.66" then
     menu.notify("This script is outdated, some features may not work as intended.", "WARNING", 12, 0xff0000ff) 
 end
 
-AddictScript = "Addict Script V1.3                                                                                          By Candy"
+AddictScript = "Addict Script V1.4                                                                                          By Candy And Unseemly"
 
 local require_files = {"AddictScript/Lib/Utils", "AddictScript/Lib/Menyoo", "AddictScript/Lib/Natives", "AddictScript/Lib/Script_Func", "AddictScript/Lib/Entity_Func", "AddictScript/Lib/Text_Func", "AddictScript/Lib/Memory", "AddictScript/Lib/Player_Func", "AddictScript/Data/NetEventIDs", "AddictScript/Data/NetEventNames", "AddictScript/Data/NotifyColours", "AddictScript/Mapper/ObjectModels", "AddictScript/Data/ScriptEvents", "AddictScript/Mapper/PedModels", "AddictScript/Mapper/VehicleModels", "AddictScript/Data/DataMain", "AddictScript/Data/ModderFlags", "AddictScript/Debug"}
 
@@ -2910,19 +2905,19 @@ feature["Force TP Session"] = menu.add_feature("Force TP Session", "action", loc
 	end
 end)
 ]]
-feature["Send To Cayo Perico"] = menu.add_feature("Send To Cayo Perico", "action_value_str", localparents["Malicious"].id, function(f)
+feature["Send To Cayo"] = menu.add_feature("Send To Cayo", "action_value_str", localparents["Malicious"].id, function(f)
         for pid = 0, 31 do
 	    if player.is_player_valid(pid) then
 		if f.value == 0 then
-			script.trigger_script_event(-910497748, pid, {player.player_id(), 0})
+			script.trigger_script_event(ScriptEvent["SendToCayo"], pid, {player.player_id(), 0})
 		elseif f.value == 1 then
-       		script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 3, 1})
+       		script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 3, 1})
 		elseif f.value == 2 then
-            script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 4, 1})
+            script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 4, 1})
 		elseif f.value == 3 then
-            script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 4, })
+            script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 4, })
 		elseif f.value == 4 then
-            script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 4, 0})
+            script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 4, 0})
         end
 	  end
 	end
@@ -3187,7 +3182,7 @@ feature["Lobby Off The Radar"] = menu.add_feature("Lobby Off The Radar", "toggle
         while f.on do
             for pid = 0, 31 do
 			if player.is_player_valid(pid) then
-                    script.trigger_script_event(-162943635, pid, {player.player_id(), utils.time() - 60, utils.time(), 1, 1, script_func.get_global_main(pid)})
+                    script.trigger_script_event(ScriptEvent["RemoteOffRadar"], pid, {player.player_id(), utils.time() - 60, utils.time(), 1, 1, script_func.get_global_main(pid)})
                 end
 
             end
@@ -8398,7 +8393,7 @@ do
 			if player.is_player_valid(player.player_id()) then
 				if f.value == 0 then
 					if utils.file_exists(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles, xml_files[i])) then
-						local vehicle_ = xml_handler.request_model(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles, xml_files[i]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
+						local vehicle_ = xml_handler.spawn_vehicle(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles, xml_files[i]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
 						if vehicle_ ~= nil then
 							all_spawned_xml_vehicles[#all_spawned_xml_vehicles + 1] = vehicle_
 							network.request_control_of_entity(vehicle_)
@@ -8444,7 +8439,7 @@ do
 				if player.is_player_valid(player.player_id()) then
 					if f.value == 0 then
 						if utils.file_exists(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles .. "\\" .. xml_dirs[i], xml_files[b])) then
-							local vehicle_ = xml_handler.request_model(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles .. "\\" .. xml_dirs[i], xml_files[b]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
+							local vehicle_ = xml_handler.spawn_vehicle(utils.get_appdata_path(Paths.AddictScriptCfg.XmlVehicles .. "\\" .. xml_dirs[i], xml_files[b]), utilities.offset_coords(player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), feature["Forward Vector Offset"].value, 1), player.get_player_heading(player.player_id()))
 							if vehicle_ ~= nil then
 								all_spawned_xml_vehicles[#all_spawned_xml_vehicles + 1] = vehicle_
 								network.request_control_of_entity(vehicle_)
@@ -8493,8 +8488,7 @@ playerparents["Crashes And Kicks"] = menu.add_player_feature("Crashes And Kicks"
 playerparents["Lobby Crashes"] = menu.add_player_feature("Lobby Crashes", "parent", playerparents["Crashes And Kicks"]).id
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-menu.add_player_feature("Wide Crash (R0) Can Freeze Stand", "toggle", playerparents["Lobby Crashes"], function(f, pid)
+menu.add_player_feature("Wide Crash (R0) [Not Tested]" , "toggle", playerparents["Lobby Crashes"], function(f, pid)
 	if player.is_player_valid(pid) then
 		utilities.request_model(0x303638A7)
 		local table_of_all_peds = {}
@@ -8537,182 +8531,41 @@ menu.add_player_feature("Wide Crash (R0) Can Freeze Stand", "toggle", playerpare
 		end
 		if yo_momma then
 			network.request_control_of_entity(yo_momma)
-			entity_func.hard_remove_entity(yo_momma)
+			utilities.hard_remove_entity(yo_momma)
 		end
 		system.wait(1)
-		script.trigger_script_event(-371781708, pid, {player.player_id(), pid, pid, 1403904671})
-		system.wait(1)
-		script.trigger_script_event(-317318371, pid, {player.player_id(), pid, pid, 1993236673})
-		system.wait(1)
-		script.trigger_script_event(911179316, pid, {player.player_id(), pid, pid, pid, 1234567990, pid, pid})
-		system.wait(1)
-		script.trigger_script_event(846342319, pid, {player.player_id(), 578162304, 1})
-		system.wait(1)
-		script.trigger_script_event(-2085853000, pid, {player.player_id(), pid, 1610781286, pid, pid})
-		system.wait(1)
-		script.trigger_script_event(-1991317864, pid, {player.player_id(), 3, 935764694, pid, pid})
-		system.wait(1)
-		script.trigger_script_event(-1970125962, pid, {player.player_id(), pid, 1171952288})
-		system.wait(1)
-		script.trigger_script_event(-1013679841, pid, {player.player_id(), pid, 2135167326, pid})
-		system.wait(1)
-		script.trigger_script_event(-1767058336, pid, {player.player_id(), 1459620687})
-		system.wait(1)
-		script.trigger_script_event(-1892343528, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(1494472464, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(69874647, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(998716537, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(522189882, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(1514515570, pid, {player.player_id(), pid, 2147483647})
-		system.wait(1)
-		script.trigger_script_event(-393294520, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(-1386010354, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(962740265, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(296518236, pid, {player.player_id(), pid, pid, pid, 1})
-		system.wait(1)
-		script.trigger_script_event(-1782442696, pid, {player.player_id(), 420, 69})
-		system.wait(1)
-		for i = 1, 5 do
-			script.trigger_script_event(-1782442696, pid, {player.player_id(), math.random(-2147483647, 2147483647), 0})
-			system.wait(1)
-		end
-		script.trigger_script_event(924535804, pid, {pid, math.random(-2147483647, 2147483647), 0})
-		system.wait(1)
-		script.trigger_script_event(436475575, pid, {pid, math.random(-2147483647, 2147483647), 0})
-		system.wait(1)
-		script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, -788905164})
-		script.trigger_script_event(962740265, pid, {player.player_id(), 4294894682, -4294904289, -788905164})
-		script.trigger_script_event(962740265, pid, {-72614, 63007, 59027, -12012, -26996, 33398, pid})
-		script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, -72614, 63007, 59027, -12012, -26996, 33398, pid})
 			utilities.request_model(1349725314)
-			local vehicle_ = vehicle.create_vehicle(1349725314, utilities.offset_coords(player.get_player_coords(pid), player.get_player_heading(pid), 5), player.get_player_coords(pid).z, true, false)
+			local vehicle_ = vehicle.create_vehicle(1349725314, utilities.offset_coords_forward(player.get_player_coords(pid), player.get_player_heading(pid), 5), player.get_player_coords(pid).z, true, false)
 			network.request_control_of_entity(vehicle_)
 			vehicle.set_vehicle_mod_kit_type(vehicle_, 0)
 			vehicle.set_vehicle_mod(vehicle_, 48, 0, false)
 			system.wait(25)
-			utilities.request_control(vehicle_)
-			entity_func.hard_remove_entity(vehicle_)
-		script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, 23243, 5332, 3324, pid})
-		script.trigger_script_event(962740265, pid, {player.player_id(), 23243, 5332, 3324, pid})
-		script.trigger_script_event(962740265, pid, {player.player_id(), pid, 30583, pid, pid, pid, pid, -328966, 10128444})
-		script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, pid, 30583, pid, pid, pid, pid, -328966, 10128444})
-		script.trigger_script_event(962740265, pid, {player.player_id(), 95398, 98426, -24591, 47901, -64814})
-		script.trigger_script_event(962740265, pid, {player.player_id(), 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647})
-		script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647, 2147483647})
-		script.trigger_script_event(677240627, pid, {player.player_id(), -1774405356})
-  script.trigger_script_event(-2043109205, pid, {0, 0, 17302, 9822, 1999, 6777888, 111222})
-  script.trigger_script_event(-2043109205, pid, {0, 0, 2327, 0, 0, 0, -307, 27777})
-  script.trigger_script_event(-988842806, pid, {0, 0, 2327, 0, 0, 0, -307, 27777})
-  script.trigger_script_event(-2043109205, pid, {0, 0, 27983, 7601, 1020, 3209051, 111222})
-  script.trigger_script_event(-2043109205, pid, {0, 0, 1010, 0, 0, 0, -2653, 50555})
-  script.trigger_script_event(-988842806, pid, {0, 0, 1111, 0, 0, 0, -5621, 57766})
-  script.trigger_script_event(-988842806, pid, {0, 0, -3, -90, -123, -9856, -97652})
-  script.trigger_script_event(-2043109205, pid, {0, 0, -3, -90, -123, -9856, -97652})
-  script.trigger_script_event(-1881357102, pid, {0, 0, -3, -90, -123, -9856, -97652})
-  script.trigger_script_event(-988842806, pid, {0, 0, 20547, 1058, 1245, 2721936, 666333})
-  system.wait(25)
-  script.trigger_script_event(-2043109205, pid, {0, 0, 20547, 1058, 1245, 2721936, 666333})
-  script.trigger_script_event(-1881357102, pid, {0, 0, 20547, 1058, 1245, 2721936, 666333})
-  script.trigger_script_event(153488394, pid, {0, 868904806, 0, 0, -152, -123, -978, 0, 0, 1, 0, -167, -144})
-  script.trigger_script_event(153488394, pid, {0, 868904806, 0, 0, 152, 123, 978, 0, 0, 1, 0, 167, 144})
-  script.trigger_script_event(1249026189, pid, {0, 0, 97587, 5697, 3211, 8237539, 967853})
-  script.trigger_script_event(1033875141, pid, {0, 0, 0, 1967})
-  script.trigger_script_event(1033875141, pid, {0, 0, -123, -957, -14, -1908, -123})
-  script.trigger_script_event(1033875141, pid, {0, 0, 12121, 9756, 7609, 1111111, 789666})
-  script.trigger_script_event(315658550, pid, {0, 0, 87111, 5782, 9999, 3333333, 888888})
-  script.trigger_script_event(-877212109, pid, {0, 0, 87111, 5782, 9999, 3333333, 888888})
-  script.trigger_script_event(1926582096, pid, {0, -1, -1, -1, 18899, 1011, 3070})
-  script.trigger_script_event(1926582096, pid, {0, -4640169, 0, 0, 0, -36565476, -53105203})
-  script.trigger_script_event(1033875141, pid, {-17645264, -26800537, -66094971, -45281983, -24450684, -13000488,
-                                                59643555, 34295654, 91870118, -3283691})
-  script.trigger_script_event(-988842806, pid, {0, 0, 93})
-  system.wait(25)
-  script.trigger_script_event(-2043109205, pid, {0, 0, 37, 0, -7})
-  script.trigger_script_event(-1881357102, pid, {0, 0, -13, 0, 0, 0, 23})
-  script.trigger_script_event(153488394, pid, {0, 868904806, 0, 0, 7, 7, 19, 0, 0, 1, 0, -23, -27})
-  script.trigger_script_event(1249026189, pid, {})
-  script.trigger_script_event(315658550, pid, {})
-  script.trigger_script_event(-877212109, pid, {})
-  script.trigger_script_event(1033875141, pid, {0, 0, 0, 82})
-  script.trigger_script_event(1926582096, pid, {})
-  script.trigger_script_event(-977515445, pid, {26770, 95398, 98426, -24591, 47901, -64814})
-  script.trigger_script_event(-1949011582, pid, {pid, -1139568479, math.random(0, 4), math.random(0, 1)})
-  system.wait(25)
-  script.trigger_script_event(-2043109205, pid, {0, 0, 3333, 0, 0, 0, -987, 21369})
-  script.trigger_script_event(-988842806, pid, {0, 0, 2222, 0, 0, 0, -109, 73322})
-  script.trigger_script_event(-977515445, pid, {26770, 95398, 98426, -24591, 47901, -64814})
-  script.trigger_script_event(-1949011582, pid, {pid, -1139568479, math.random(0, 4), math.random(0, 1)})
-  script.trigger_script_event(-1730227041, pid, {-494, 1526, 60541, -12988, -99097, -32105})
-    script.trigger_script_event(-393294520, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-    script.trigger_script_event(-1386010354, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-    script.trigger_script_event(962740265, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-script.trigger_script_event(962740265, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-script.trigger_script_event(962740265, pid, {player.player_id(), pid, 1001, pid})
-script.trigger_script_event(-1386010354, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-script.trigger_script_event(-1386010354, pid, {player.player_id(), 2147483647, 2147483647, 232342, 112, 238452, 2832})
-script.trigger_script_event(2112408256, pid, {player.player_id(), math.random(-1986324736, 1747413822), math.random(-1986324736, 1777712108), math.random(-1673857408, 1780088064), math.random(-2588888790, 2100146067)})
-script.trigger_script_event(998716537, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-script.trigger_script_event(998716537, pid, {player.player_id(), pid, 1001, pid})
-script.trigger_script_event(163598572, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-script.trigger_script_event(-1056683619, pid, {player.player_id(), pid, 1001, pid})
-script.trigger_script_event(436475575, pid, {player.player_id(), 20})
-script.trigger_script_event(1757755807, pid, {player.player_id(), 62, 2})
-script.trigger_script_event(-1767058336, pid, {player.player_id(), 3})
-script.trigger_script_event(-1013679841, pid, {player.player_id(), pid, 111})
-script.trigger_script_event(-1501164935, pid, {player.player_id(), 0})
-script.trigger_script_event(998716537, pid, {player.player_id(), 0})
-script.trigger_script_event(163598572, pid, {player.player_id(), 0})
-script.trigger_script_event(924535804, pid, {player.player_id(), 0})
-script.trigger_script_event(69874647, pid, {player.player_id(), 0})
-script.trigger_script_event(-1782442696, pid, {player.player_id(), 420, 69})
-script.trigger_script_event(1445703181, pid, {player.player_id(), 28, 4294967295, 4294967295})
-script.trigger_script_event(-1386010354, pid, {player.player_id(), 4294894682, -4294904289, -4294908269, 4294955284, 4294940300, -4294933898})
-script.trigger_script_event(962740265, pid, {player.player_id(), 4294894682, -4294904289, -4294908269, 4294955284, 4294940300, -4294933898})
-script.trigger_script_event(-1501164935, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-script.trigger_script_event(-1501164935, pid, {player.player_id(), pid, 1001, pid})
-script.trigger_script_event(-0x529CD6F2, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-script.trigger_script_event(-0x756DBC8A, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-script.trigger_script_event(-0x69532BA0, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-script.trigger_script_event(0x68C5399F, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-script.trigger_script_event(-0x177132B8, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-script.trigger_script_event(962740265, pid, {player.player_id(), pid, 1001, pid})
-script.trigger_script_event(-0x177132B8, pid, {player.player_id(), math.random(-2147483647, 2147483647), pid})
-script.trigger_script_event(436475575, pid, {player.player_id(), 4113865})
-script.trigger_script_event(-1767058336, pid, {player.player_id(), 20923579})
-script.trigger_script_event(2112408256, pid, {77777778})
-script.trigger_script_event(924535804, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-script.trigger_script_event(1445703181, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), 136236, math.random(-5262, 216247), math.random(-2147483647, 2147483647), math.random(-2623647, 2143247), 1587193, math.random(-214626647, 21475247), math.random(-2123647, 2363647), 651264, math.random(-13683647, 2323647), 1951923, math.random(-2147483647, 2147483647), math.random(-2136247, 21627), 2359273, math.random(-214732, 21623647), pid})
+			utilities.request_control_silent(vehicle_)
+			utilities.hard_remove_entity(vehicle_)
 pos = player.get_player_coords(pid)
 pos.x = pos.x + 2
 newRope = rope.add_rope(pos,v3(0,0,10),1,1,0,1,1,false,false,false,1.0,false)
 pos = player.get_player_coords(pid)
-car = utilities.request_model(0X187D938D,pos,0)
+car = spawn_vehicle(0X187D938D,pos,0)
 local pos = player.get_player_coords(pid)
 local ppos = player.get_player_coords(pid)
 pos.x = pos.x+5
 ppos.z = ppos.z+1
-pedp = player.get_player_ped(pid)
-cargobob = utilities.request_model(2132890591, pos ,0)
-kur = ped.create_ped(0, 2727244247, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+pedp=player.get_player_ped(pid)
+cargobob = spawn_vehicle(    2132890591,pos,0)
+kur =Cped(26,2727244247,ppos,0)
 entity.set_entity_god_mode(kur,true)
 newRope = rope.add_rope(pos,v3(0,0,0),1,1,0.0000000000000000000000000000000000001,1,1,true,true,true,1.0,true)
+rope.attach_entities_to_rope(newRope,cargobob,kur,entity.get_entity_coords(cargobob),entity.get_entity_coords(kur),2 ,0,0,"Center","Center")
 system.wait(1)
-			local vehicles = entity_func.remove_player_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
+			local vehicles = utilities.get_table_of_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
 				menu.notify("5G Crash: " .. #vehicles .. " valid subjects found! Executing Crash...", AddictScript, 4, 0x64FA7800)
 				system.wait(1)
 					utilities.request_model(2971866336)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 					utilities.request_model(3852654278)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				entity.set_entity_god_mode(tow_truck_5g_vehicle, true)
 				entity.set_entity_visible(tow_truck_5g_vehicle, false)
 					system.wait(1)
@@ -8720,8 +8573,8 @@ system.wait(1)
 					network.request_control_of_entity(player.get_player_ped(pid))
 					ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
-				utilities.request_control(tow_truck_5g_vehicle)
-				entity_func.hard_remove_entity(tow_truck_5g_vehicle)
+				utilities.request_control_silent(tow_truck_5g_vehicle)
+				utilities.hard_remove_entity(tow_truck_5g_vehicle)
 		menu.notify("Wide Lobby Crash executed successfully.")
 	else
 		menu.notify("Invalid Player.")
@@ -8733,7 +8586,7 @@ end)
 
 
 menu.add_player_feature("Crash - Object Crash" , "toggle", playerparents["Lobby Crashes"], function(f, pid)
-	while f do
+	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) then
         pos = player.get_player_coords(player.player_id())
@@ -8982,14 +8835,15 @@ menu.add_player_feature("Crash - Math Crash x3", "toggle", playerparents["Lobby 
 		pos.x = pos.x+5
 		ppos.z = ppos.z+1
 		pedp=player.get_player_ped(pid)
-		cargobob = utilities.request_model(2132890591, pos, 0)
-		kur = ped.create_ped(0, 2727244247, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+		cargobob = spawn_vehicle(    2132890591,pos,0)
+		kur =Cped(26,2727244247,ppos,0)
 		entity.set_entity_god_mode(kur,true)
 		newRope = rope.add_rope(pos,v3(0,0,0),1,1,0.0000000000000000000000000000000000001,1,1,true,true,true,1.0,true)
-		utilities.request_control(vehicle_)
-		utilities.request_control(ped_)
-		entity_func.hard_remove_entity(vehicle_)
-		entity_func.hard_remove_entity(ped_)
+		rope.attach_entities_to_rope(newRope,cargobob,kur,entity.get_entity_coords(cargobob),entity.get_entity_coords(kur),2 ,0,0,"Center","Center")
+		utilities.request_control_silent(vehicle_)
+		utilities.request_control_silent(ped_)
+		utilities.hard_remove_entity(vehicle_)
+		utilities.hard_remove_entity(ped_)
 		rope.delete_rope(rope_)
 		rope.rope_unload_textures()
 		menu.notify("Math Crash executed successfully.", AddictScript)
@@ -9002,7 +8856,7 @@ system.wait(100)
 	end
 end)
 
-menu.add_player_feature("Crash - USB Crash" , "toggle", playerparents["Lobby Crashes"], function(f, pid)
+menu.add_player_feature("Crash - USB Crash [Not Tested]" , "toggle", playerparents["Lobby Crashes"], function(f, pid)
 	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) then
@@ -9096,14 +8950,14 @@ menu.add_player_feature("Crash - 5G Tow Truck Spam", "toggle", playerparents["Lo
 	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) then
-			local vehicles = entity_func.remove_player_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
+			local vehicles = utilities.get_table_of_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
 				menu.notify("5G Crash: " .. #vehicles .. " valid subjects found! Executing Crash...", AddictScript, 4, 0x64FA7800)
 				system.wait(1)
 					utilities.request_model(2971866336)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 					utilities.request_model(3852654278)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				entity.set_entity_god_mode(tow_truck_5g_vehicle, true)
 				entity.set_entity_visible(tow_truck_5g_vehicle, false)
 					system.wait(1)
@@ -9111,8 +8965,8 @@ menu.add_player_feature("Crash - 5G Tow Truck Spam", "toggle", playerparents["Lo
 					network.request_control_of_entity(player.get_player_ped(pid))
 					ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 				network.request_control_of_entity(player.get_player_ped(pid))
-				utilities.request_control(tow_truck_5g_vehicle)
-				entity_func.hard_remove_entity(tow_truck_5g_vehicle)
+				utilities.request_control_silent(tow_truck_5g_vehicle)
+				utilities.hard_remove_entity(tow_truck_5g_vehicle)
 			menu.notify("Math Crash executed successfully.", AddictScript)
 		else
 			f.on = false
@@ -9125,7 +8979,7 @@ end)
 menu.add_player_feature("Crash - 5G Tow Truck", "action_value_str", playerparents["Lobby Crashes"], function(f, pid)
 	if player.is_player_valid(pid) then
 		if network.get_player_player_is_spectating(player.player_id()) == pid or utilities.get_distance_between(player.get_player_ped(player.player_id()), player.get_player_ped(pid)) < 100 then
-			local vehicles = entity_func.remove_player_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
+			local vehicles = utilities.get_table_of_entities(vehicle.get_all_vehicles(), 1000, 5000, true, true, player.get_player_coords(pid))
 
 			for i = 1, #vehicles do
 				network.request_control_of_entity(vehicles[i])
@@ -9137,10 +8991,10 @@ menu.add_player_feature("Crash - 5G Tow Truck", "action_value_str", playerparent
 
 				if f.value == 0 then
 					utilities.request_model(2971866336)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(2971866336, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				elseif f.value == 1 then
 					utilities.request_model(3852654278)
-					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
+					tow_truck_5g_vehicle = vehicle.create_vehicle(3852654278, utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10), 0, true, false)
 				end
 				entity.set_entity_god_mode(tow_truck_5g_vehicle, true)
 				entity.set_entity_visible(tow_truck_5g_vehicle, false)
@@ -9163,16 +9017,16 @@ menu.add_player_feature("Crash - 5G Tow Truck", "action_value_str", playerparent
 					ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 					for i = 1, #vehicles do
 						network.request_control_of_entity(vehicles[i])
-						entity.set_entity_coords_no_offset(vehicles[i], utilities.offset_coords(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10))
+						entity.set_entity_coords_no_offset(vehicles[i], utilities.offset_coords_forward(player.get_player_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10))
 					end
 				end
 
-				utilities.request_control(tow_truck_5g_vehicle)
-				entity_func.hard_remove_entity(tow_truck_5g_vehicle)
+				utilities.request_control_silent(tow_truck_5g_vehicle)
+				utilities.hard_remove_entity(tow_truck_5g_vehicle)
 
 				for i = 1, #vehicles do
-					utilities.request_control(vehicles[i])
-					entity_func.hard_remove_entity(vehicles[i])
+					utilities.request_control_silent(vehicles[i])
+					utilities.hard_remove_entity(vehicles[i])
 				end
 
 				menu.notify("5G Tow Truck Crash executed successfully.", AddictScript)
@@ -9319,7 +9173,7 @@ menu.add_player_feature("Crash - Jet Cargo Dump Crash" , "toggle", playerparents
 	end
 end)
 
-menu.add_player_feature("Crash - Ear Rape Crash" , "toggle", playerparents["Lobby Crashes"], function(f, pid)
+menu.add_player_feature("Crash - Ear Rape Crash [Not Tested]" , "toggle", playerparents["Lobby Crashes"], function(f, pid)
 	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) then
@@ -9469,14 +9323,14 @@ menu.add_player_feature("Crash - Ear Rape Crash" , "toggle", playerparents["Lobb
 	end
 end)
 
-menu.add_player_feature("Crash - Sound Spam", "toggle", playerparents["Lobby Crashes"], function(f, pid)
+menu.add_player_feature("Crash - Sound Spam", "action", playerparents["Lobby Crashes"], function(f, pid)
 	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) then
 		local time = utils.time_ms() + 100
 		while time > utils.time_ms() do
 			for i = 1, 10 do
-				audio.play_sound_from_coord(-1, "Event_Message_Purple", player.get_player_coords(player.player_id()), "GTAO_FM_Events_Soundset", true, 99999, false)
+				audio.play_sound_from_coord(-1, "Checkpoint_Cash_Hit", player.get_player_coords(pid), "GTAO_FM_Events_Soundset", true, 99999, false)
 			end
 			system.wait(0)
 		end
@@ -9553,7 +9407,7 @@ menu.add_player_feature("Crash - Bad Vehicle Parachute", "toggle", playerparents
 		utilities.request_model(941494461)
 		local pos = player.get_player_coords(player.player_id())
 		local parachute_vehicle = vehicle.create_vehicle(941494461, player.get_player_coords(player.player_id()), player.get_player_heading(player.player_id()), true, false)
-		utilities.request_control(parachute_vehicle)
+		utilities.request_control_silent(parachute_vehicle)
 		entity.set_entity_god_mode(parachute_vehicle, true)
 		vehicle.set_vehicle_parachute_model(parachute_vehicle, 1913502601)
 		ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), parachute_vehicle, -1)
@@ -9564,8 +9418,8 @@ menu.add_player_feature("Crash - Bad Vehicle Parachute", "toggle", playerparents
 			vehicle.set_vehicle_parachute_active(parachute_vehicle, true)
 		end
 		if parachute_vehicle then
-			utilities.request_control(parachute_vehicle)
-			entity_func.hard_remove_entity(parachute_vehicle)
+			utilities.request_control_silent(parachute_vehicle)
+			utilities.hard_remove_entity(parachute_vehicle)
 		end
 		entity.set_entity_coords_no_offset(player.get_player_ped(player.player_id()), pos)
 		menu.notify("Bad Vehicle Parachute Crash executed successfully.", AddictScript)
@@ -9576,7 +9430,7 @@ menu.add_player_feature("Crash - Bad Vehicle Parachute", "toggle", playerparents
 		end
 	end
 end)
-
+--[[
 menu.add_player_feature("Crash - Big Chungus Loop", "toggle", playerparents["Lobby Crashes"], function(f, pid)
 	while f.on do
 		system.yield(0)
@@ -9821,8 +9675,6 @@ menu.add_player_feature("Crash - Big Chungus", "action", playerparents["Lobby Cr
 		 end
    end)
 
---[[
-
 function GetLocalPed()
     return player.player_id()
 end
@@ -9871,6 +9723,14 @@ end)
 
 ]]
 
+bad_para_crash = menu.add_player_feature("Virgin Crash", "toggle", playerparents["Lobby Crashes"], function(f, pid)
+pos = player.get_player_coords(pid)
+cargobob = spawn_vehicle(0XFCFCB68B,pos,0)
+vehicle = spawn_vehicle(0X187D938D,pos,0)
+newRope = rope.add_rope(pos,v3(0,0,10),1,1,0,1,1,false,false,false,1.0,false)
+rope.attach_entities_to_rope(newRope,cargobob,vehicle,entity.get_entity_coords(cargobob),entity.get_entity_coords(vehicle),2 ,0,0,"Center","Center")
+system.wait(100)
+end)
 
 menu.add_player_feature("^^^^^STAY FAR FROM PLAYER'S^^^^^", "toggle", playerparents["Lobby Crashes"], function(f, pid)
 	while f.on do
@@ -9897,6 +9757,8 @@ return HANDLER_POP
 	end
 end)
 
+
+
 playerparents["Player Crashes"] = menu.add_player_feature("Player Crashes", "parent", playerparents["Crashes And Kicks"]).id
 
 menu.add_player_feature("Crash - Lag with Hydras", "toggle", playerparents["Player Crashes"], function(f, pid)
@@ -9921,17 +9783,17 @@ menu.add_player_feature("Crash - Lag with Hydras", "toggle", playerparents["Play
 		system.yield(10)
 		local velocity = entity.get_entity_velocity(player.get_player_vehicle(player.player_id()))
 		system.yield(10)
-		tableOfVehicles[i] = vehicle.create_vehicle(0, 0x3F039CBA, pos + v3(300, 300, 300), 0, true, false)
+		tableOfVehicles[i] = vehicle.create_vehicle(0, 0x3F039CBA, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 		network.request_control_of_entity(tableOfVehicles[i])
 		entity.attach_entity_to_entity(tableOfVehicles[i], veh_hash, 0, v3(0, 0, 0), v3(0, 0, 0), true, false, true, 0, true)
 		entity.set_entity_rotation(player.get_player_vehicle(player.player_id()), v3(cam.get_gameplay_cam_rot().x, 0, cam.get_gameplay_cam_rot().z))
 		entity.set_entity_velocity(player.get_player_vehicle(player.player_id()), velocity)
-		tableOfVehicles[i + 5] = vehicle.create_vehicle(0, 0x856CFB02, pos + v3(300, 300, 300), 0, true, false)
+		tableOfVehicles[i + 5] = vehicle.create_vehicle(0, 0x856CFB02, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 		network.request_control_of_entity(tableOfVehicles[i + 5])
 		entity.attach_entity_to_entity(tableOfVehicles[i + 5], veh_hash, 0, v3(0, 0, 0), v3(0, 0, 0), true, false, true, 0, true)
 		entity.set_entity_rotation(player.get_player_vehicle(player.player_id()), v3(cam.get_gameplay_cam_rot().x, 0, cam.get_gameplay_cam_rot().z))
 		entity.set_entity_velocity(player.get_player_vehicle(player.player_id()), velocity)
-		tableOfVehicles[i + 10] = vehicle.create_vehicle(0, 0x2D7030F3, pos + v3(300, 300, 300), 0, true, false)
+		tableOfVehicles[i + 10] = vehicle.create_vehicle(0, 0x2D7030F3, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
 		network.request_control_of_entity(tableOfVehicles[i + 10])
 		entity.attach_entity_to_entity(tableOfVehicles[i + 10], veh_hash, 0, v3(0, 0, 0), v3(0, 0, 0), true, false, true, 0, true)
 		entity.set_entity_velocity(player.get_player_vehicle(player.player_id()), v3(cam.get_gameplay_cam_rot().x, 0, cam.get_gameplay_cam_rot().z))
@@ -10007,7 +9869,7 @@ menu.add_player_feature("Crash - Lag with Cargos", "toggle", playerparents["Play
 			end
 		return HANDLER_CONTINUE
 	end)
-
+--[[
 menu.add_player_feature("Crash - Wade Crash" , "toggle", playerparents["Player Crashes"], function(f, pid)
 	while f.on do
 		system.yield(0)
@@ -10016,19 +9878,19 @@ menu.notify("Sent crash get ready (dont spectate)!", "Wade Crash", 10, ff0000)
 for i = 0 , 30 do 
 ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 pos = player.get_player_coords(pid)
-npc = ped.create_ped(0, 0x92991B72, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+npc = Cped(26, 0x92991B72,pos, 0)
 system.wait(100)
 end
 for i = 0 , 30 do 
 ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 pos = player.get_player_coords(pid)
-npc = ped.create_ped(0, 0x92991B72, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+npc = Cped(26, 0x92991B72,pos, 0)
 system.wait(100)
 end
 for i = 0 , 30 do 
 ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 pos = player.get_player_coords(pid)
-npc = ped.create_ped(0, 0x92991B72, player.get_player_coords(pid) + v3(300, 300, 300), 0, true, false)
+npc = Cped(26, 0x92991B72,pos, 0)
 system.wait(100)
 end	
 menu.notify("Crash complete!(dont spectate if there still here)", 10, ff0000)
@@ -10040,7 +9902,7 @@ system.wait(100)
 		end
 	end
 end)
---[[
+
 menu.add_player_feature("Crash - Rebound" , "toggle", playerparents["Player Crashes"], function(f, pid)
 	while f.on do
 		system.yield(0)
@@ -10061,10 +9923,10 @@ menu.add_player_feature("Crash - Rebound" , "toggle", playerparents["Player Cras
                 util.yield(100)
                 TASK.TASK_VEHICLE_HELI_PROTECT(jesus, veh, ped, 10.0, 0, 10, 0, 0)
                 util.yield(1000)
-				utilities.request_control(jesus)
-				entity_func.hard_remove_entity(jesus)
-				utilities.request_control(veh)
-				entity_func.hard_remove_entity(veh)
+				utilities.request_control_silent(jesus)
+				utilities.hard_remove_entity(jesus)
+				utilities.request_control_silent(veh)
+				utilities.hard_remove_entity(veh)
             end  
         streaming.set_model_as_no_longer_needed(mdl)
         streaming.set_model_as_no_longer_needed(veh_mdl)
@@ -10076,85 +9938,6 @@ menu.add_player_feature("Crash - Rebound" , "toggle", playerparents["Player Cras
 	end
 end)
 ]]
-menu.add_player_feature("Crash - Cancer Crash", "toggle", playerparents["Player Crashes"], function(f, pid)
-if player.is_player_valid(pid) then
-        local vehs = {}
-        local c = player.get_player_coords(pid)
-        local m = {
-            "dubsta",
-            "astron",
-            "huntley",
-            "patriot",
-            "ingot",
-            "asea",
-            "stratum",
-            "adder",
-            "ninef",
-            "baller",
-            "comet2",
-            "zentorno",
-            "bifta",
-        }
-        
-        for i=1,#m do
-            local h = gameplay.get_hash_key(m[i])
-            menu.notify(h)
-            streaming.request_model(h)
-            while not streaming.has_model_loaded(h) do
-                system.wait(0)
-            end
-            c.z = c.z + 1.0
-            vehs[i] = vehicle.create_vehicle(h, c, 0, true, false)
-            streaming.set_model_as_no_longer_needed(h)
-        end
-        while f.on do
-            for i=1,#vehs do
-                entity.set_entity_visible(vehs[i], false)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 0, true)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 1, true)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 2, true)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 3, true)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 4, true)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 5, true)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 6, true)
-                native.call(0x2FA133A4A9D37ED8, vehs[i], 7, true)
-                system.wait(0)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 0, false)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 1, false)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 2, false)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 3, false)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 4, false)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 5, false)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 6, false)
-                native.call(0xD4D4F6A4AB575A33, vehs[i], 7, false)
-            end
-            system.wait(100)
-            for i=1,#vehs do
-                network.request_control_of_entity(vehs[i])
-                native.call(0x115722B1B9C14C1C, vehs[i])
-            end
-            system.wait(100)
-        end
-        for i=1,#vehs do
-            entity.delete_entity(vehs[i])
-			return
-		end
-	end
-end)
-
-
-
-menu.add_player_feature("Crash - Invalid Task Crash", "toggle", playerparents["Player Crashes"], function(f, pid)
-    allvehicles = vehicle.get_all_vehicles()
-    for i=1, #allvehicles do
-        network.request_control_of_entity(allvehicles[i])
-        native.call(0xF75B0D629E1C063D,player.get_player_ped(pid),allvehicles[i],1)
-        native.call(0xC429DCEEB339E129,player.get_player_ped(pid),allvehicles[i],17,1)
-        entity.set_entity_coords_no_offset(allvehicles[i], entity.get_entity_coords(pid) + v3(0, 0, 5), player.get_player_heading(pid), 10)
-        system.yield()
-    end
-    menu.notify("Finished", "Invalid Task Crash")
-end)
 
 --[[
 menu.add_player_feature("Crash - Midnight Brute", "toggle", playerparents["Player Crashes"], function(f, pid)
@@ -10252,56 +10035,8 @@ menu.add_player_feature("Crash - Yo Momma", "toggle", playerparents["Player Cras
 		end
 		if yo_momma then
 			network.request_control_of_entity(yo_momma)
-			entity_func.hard_remove_entity(yo_momma)
+			utilities.hard_remove_entity(yo_momma)
 		end
-		system.wait(1)
-		script.trigger_script_event(-371781708, pid, {player.player_id(), pid, pid, 1403904671})
-		system.wait(1)
-		script.trigger_script_event(-317318371, pid, {player.player_id(), pid, pid, 1993236673})
-		system.wait(1)
-		script.trigger_script_event(911179316, pid, {player.player_id(), pid, pid, pid, 1234567990, pid, pid})
-		system.wait(1)
-		script.trigger_script_event(846342319, pid, {player.player_id(), 578162304, 1})
-		system.wait(1)
-		script.trigger_script_event(-2085853000, pid, {player.player_id(), pid, 1610781286, pid, pid})
-		system.wait(1)
-		script.trigger_script_event(-1991317864, pid, {player.player_id(), 3, 935764694, pid, pid})
-		system.wait(1)
-		script.trigger_script_event(-1970125962, pid, {player.player_id(), pid, 1171952288})
-		system.wait(1)
-		script.trigger_script_event(-1013679841, pid, {player.player_id(), pid, 2135167326, pid})
-		system.wait(1)
-		script.trigger_script_event(-1767058336, pid, {player.player_id(), 1459620687})
-		system.wait(1)
-		script.trigger_script_event(-1892343528, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(1494472464, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(69874647, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(998716537, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(522189882, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(1514515570, pid, {player.player_id(), pid, 2147483647})
-		system.wait(1)
-		script.trigger_script_event(-393294520, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(-1386010354, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(962740265, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		system.wait(1)
-		script.trigger_script_event(296518236, pid, {player.player_id(), pid, pid, pid, 1})
-		system.wait(1)
-		script.trigger_script_event(-1782442696, pid, {player.player_id(), 420, 69})
-		system.wait(1)
-		for i = 1, 5 do
-			script.trigger_script_event(-1782442696, pid, {player.player_id(), math.random(-2147483647, 2147483647), 0})
-			system.wait(1)
-		end
-		script.trigger_script_event(924535804, pid, {pid, math.random(-2147483647, 2147483647), 0})
-		system.wait(1)
-		script.trigger_script_event(436475575, pid, {pid, math.random(-2147483647, 2147483647), 0})
 		system.wait(1)
 		menu.notify("Yo Momma Crash executed successfully.", AddictScript)
 	else
@@ -10313,76 +10048,6 @@ menu.add_player_feature("Crash - Script Event", "action_value_str", playerparent
 	if player.is_player_valid(pid) then
 		if f.value == 0 then
 			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-		elseif f.value == 1 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, 1001, pid})
-		elseif f.value == 2 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-		elseif f.value == 3 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 2147483647, 2147483647, 232342, 112, 238452, 2832})
-		elseif f.value == 4 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), math.random(-1986324736, 1747413822), math.random(-1986324736, 1777712108), math.random(-1673857408, 1780088064), math.random(-2588888790, 2100146067)})
-		elseif f.value == 5 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-		elseif f.value == 6 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, 1001, pid})
-		elseif f.value == 7 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-		elseif f.value == 8 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, 1001, pid})
-		elseif f.value == 9 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 20})
-		elseif f.value == 10 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 62, 2})
-		elseif f.value == 11 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 3})
-		elseif f.value == 12 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), pid, 111})
-		elseif f.value == 13 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 0})
-		elseif f.value == 14 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 0})
-		elseif f.value == 15 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 0})
-		elseif f.value == 16 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 0})
-		elseif f.value == 17 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 0})
-		elseif f.value == 18 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 420, 69})
-		elseif f.value == 19 then
-			script.trigger_script_event(-904555865, pid, {player.player_id(), 28, 4294967295, 4294967295})
-		elseif f.value == 20 then
-			script.trigger_script_event(1775863255, pid, {player.player_id(), 4294894682, -4294904289, -4294908269, 4294955284, 4294940300, -4294933898})
-		elseif f.value == 21 then
-			script.trigger_script_event(1775863255, pid, {player.player_id(), 4294894682, -4294904289, -4294908269, 4294955284, 4294940300, -4294933898})
-		elseif f.value == 22 then
-			script.trigger_script_event(-1501164935, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-		elseif f.value == 23 then
-			script.trigger_script_event(-1501164935, pid, {player.player_id(), pid, 1001, pid})
-		elseif f.value == 24 then
-			script.trigger_script_event(-904555865, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		elseif f.value == 25 then
-			script.trigger_script_event(-904555865, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		elseif f.value == 26 then
-			script.trigger_script_event(1775863255, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		elseif f.value == 27 then
-			script.trigger_script_event(1775863255, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		elseif f.value == 28 then
-			script.trigger_script_event(1775863255, pid, {math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
-		elseif f.value == 29 then
-			script.trigger_script_event(1775863255, pid, {player.player_id(), pid, 1001, pid})
-		elseif f.value == 30 then
-			script.trigger_script_event(-1775863255, pid, {player.player_id(), math.random(-2147483647, 2147483647), pid})
-		elseif f.value == 31 then
-			script.trigger_script_event(1775863255, pid, {player.player_id(), 4113865})
-		elseif f.value == 32 then
-			script.trigger_script_event(-1775863255, pid, {player.player_id(), 20923579})
-		elseif f.value == 33 then
-			script.trigger_script_event(1775863255, pid, {77777778})
-		elseif f.value == 34 then
-			script.trigger_script_event(1775863255, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), pid})
-		elseif f.value == 35 then
-			script.trigger_script_event(1775863255, pid, {player.player_id(), pid, math.random(-2147483647, 2147483647), 136236, math.random(-5262, 216247), math.random(-2147483647, 2147483647), math.random(-2623647, 2143247), 1587193, math.random(-214626647, 21475247), math.random(-2123647, 2363647), 651264, math.random(-13683647, 2323647), 1951923, math.random(-2147483647, 2147483647), math.random(-2136247, 21627), 2359273, math.random(-214732, 21623647), pid})
 		end
 		menu.notify("Script Event Crash executed successfully.", AddictScript)
 	else
@@ -10391,40 +10056,6 @@ menu.add_player_feature("Crash - Script Event", "action_value_str", playerparent
 end):set_str_data({
 	"v1",
 	"v2",
-	"v3",
-	"v4",
-	"v5",
-	"v6",
-	"v7",
-	"v8",
-	"v9",
-	"v10",
-	"v11",
-	"v12",
-	"v13",
-	"v14",
-	"v15",
-	"v16",
-	"v17",
-	"v18",
-	"v19",
-	"v20",
-	"v21",
-	"v22",
-	"v23",
-	"v24",
-	"v25",
-	"v26",
-	"v27",
-	"v28",
-	"v29",
-	"v30",
-	"v31",
-	"v32",
-	"v33",
-	"v34",
-	"v35",
-	"v36"
 })
 
 
@@ -10447,8 +10078,8 @@ menu.add_player_feature("Crash - Bad Outfit Component", "toggle", playerparents[
 			ped.set_ped_component_variation(ped_, 10, 132, 0, 0)
 			ped.set_ped_component_variation(ped_, 11, 393, 0, 0)
 			system.wait(2000)
-			utilities.request_control(ped_)
-			entity_func.hard_remove_entity(ped_)
+			utilities.request_control_silent(ped_)
+			utilities.hard_remove_entity(ped_)
 			menu.notify("Bad Outfit Component Crash executed successfully.", AddictScript)
 		else
 			menu.notify("You have to spectate the target or be near them in order for this feature to work.", AddictScript, 5, 211)
@@ -10458,31 +10089,6 @@ menu.add_player_feature("Crash - Bad Outfit Component", "toggle", playerparents[
 	end
 end)
 ]]
-menu.add_player_feature("Crash - Invalid Vehicle Task", "toggle", playerparents["Player Crashes"], function(f, pid)
-    if player.is_player_valid(pid) then
-		utilities.request_control(player.get_player_vehicle(pid))
-		for i = 1, 3 do
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 15, 10)
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 16, 10)
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 18, 10)
-		end
-		system.wait(1000)
-		for i = 1, 3 do
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 15, 10)
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 16, 10)
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 18, 10)
-		end
-		system.wait(1000)
-		for i = 1, 3 do
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 15, 10)
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 16, 10)
-			natives.TASK_VEHICLE_TEMP_ACTION(player.get_player_ped(pid), player.get_player_vehicle(pid), 18, 10)
-		end
-        menu.notify("Invalid Vehicle Task Crash executed successfully.", AddictScript)
-    else
-        menu.notify("Invalid Player.", AddictScript, 3, 211)
-    end
-end)
 
 menu.add_player_feature("Crash - Sound Spam", "action_value_str", playerparents["Player Crashes"], function(f, pid)
 	if player.is_player_valid(pid) then
@@ -10490,21 +10096,11 @@ menu.add_player_feature("Crash - Sound Spam", "action_value_str", playerparents[
 		while time > utils.time_ms() do
 			for i = 1, 10 do
 				if f.value == 0 then
-					audio.play_sound_from_coord(-1, "Object_Dropped_Remote", player.get_player_coords(pid), "GTAO_FM_Events_Soundset", true, 1, false)
-				elseif f.value == 1 then
-					audio.play_sound_from_coord(-1, "Event_Message_Purple", player.get_player_coords(pid), "GTAO_FM_Events_Soundset", true, 1, false)
-				elseif f.value == 2 then
 					audio.play_sound_from_coord(-1, "Checkpoint_Cash_Hit", player.get_player_coords(pid), "GTAO_FM_Events_Soundset", true, 1, false)
-				elseif f.value == 3 then
+				elseif f.value == 1 then
 					audio.play_sound_from_coord(-1, "Event_Start_Text", player.get_player_coords(pid), "GTAO_FM_Events_Soundset", true, 1, false)
-				elseif f.value == 4 then
+				elseif f.value == 2 then
 					audio.play_sound_from_coord(-1, "Checkpoint_Hit", player.get_player_coords(pid), "GTAO_FM_Events_Soundset", true, 1, false)
-				elseif f.value == 5 then
-					audio.play_sound_from_coord(-1, "Return_To_Vehicle_Timer", player.get_player_coords(pid), "GTAO_FM_Events_Soundset", true, 1, false)
-				elseif f.value == 6 then
-					audio.play_sound_from_coord(-1, "5s", player.get_player_coords(pid), "MP_MISSION_COUNTDOWN_SOUNDSET", true, 1, false)
-				elseif f.value == 7 then
-					audio.play_sound_from_coord(-1, "10s", player.get_player_coords(pid), "MP_MISSION_COUNTDOWN_SOUNDSET", true, 1, false)
 				end
 			end
 			system.wait(0)
@@ -10516,12 +10112,7 @@ menu.add_player_feature("Crash - Sound Spam", "action_value_str", playerparents[
 end):set_str_data({
 	"1 v1",
 	"1 v2",
-	"1 v3",
-	"1 v4",
-	"1 v5",
-	"1 v6",
-	"2 v1",
-	"2 v2"
+	"1 v3"
 })
 
 menu.add_player_feature("Crash - Bad Vehicle Modification", "toggle", playerparents["Player Crashes"], function(f, pid)
@@ -10600,14 +10191,14 @@ menu.add_player_feature("Crash - Bad Vehicle Modification", "toggle", playerpare
 				entity.set_entity_coords_no_offset(vehicle_4, player.get_player_coords(pid))
 			end
 			system.wait(4000)
-			utilities.request_control(vehicle_1)
-			utilities.request_control(vehicle_2)
-			utilities.request_control(vehicle_3)
-			utilities.request_control(vehicle_4)
-			entity_func.hard_remove_entity(vehicle_1)
-			entity_func.hard_remove_entity(vehicle_2)
-			entity_func.hard_remove_entity(vehicle_3)
-			entity_func.hard_remove_entity(vehicle_4)
+			utilities.request_control_silent(vehicle_1)
+			utilities.request_control_silent(vehicle_2)
+			utilities.request_control_silent(vehicle_3)
+			utilities.request_control_silent(vehicle_4)
+			utilities.hard_remove_entity(vehicle_1)
+			utilities.hard_remove_entity(vehicle_2)
+			utilities.hard_remove_entity(vehicle_3)
+			utilities.hard_remove_entity(vehicle_4)
 			menu.notify("Bad Vehicle Modification Crash executed successfully.", AddictScript)
 		else
 			menu.notify("You have to spectate the target or be near them in order for this feature to work.", AddictScript, 5, 211)
@@ -10636,11 +10227,11 @@ menu.add_player_feature("Crash - Bad Sync Tree", "toggle", playerparents["Player
 			entity.set_entity_coords_no_offset(main_sync_handler, v3(player.get_player_coords(pid).x + math.random(-1, 1), player.get_player_coords(pid).y + math.random(-1, 1), player.get_player_coords(pid).z + math.random(-1, 1)))
 		end
 		network.request_control_of_entity(main_sync_handler)
-		entity_func.hard_remove_entity(main_sync_handler)
+		utilities.hard_remove_entity(main_sync_handler)
 		for i = 1, #sync_tree_children do
 			if entity.is_an_entity(sync_tree_children[i]) then
-				utilities.request_control(sync_tree_children[i])
-				entity_func.hard_remove_entity(sync_tree_children[i])
+				utilities.request_control_silent(sync_tree_children[i])
+				utilities.hard_remove_entity(sync_tree_children[i])
 			end
 		end
 		menu.notify("Bad Sync Tree Crash executed successfully.", AddictScript)
@@ -10648,8 +10239,25 @@ menu.add_player_feature("Crash - Bad Sync Tree", "toggle", playerparents["Player
 		menu.notify("Invalid Player.", AddictScript, 3, 211)
 	end
 end)
-
 --[[
+aio_crash = menu.add_player_feature("AIO-Crash", "toggle", playerparents["Player Crashes"], function(f, pid)
+mypos = player.get_player_coords(player.player_id())
+pedmy = player.get_player_ped(player.player_id())
+entity.set_entity_coords_no_offset(pedmy, v3(0,0,4000))
+entity.freeze_entity(pedmy, true)
+for i = 0 ,1 do
+--fakecrash(pid)
+poolcrashplayer(pid)
+invalidmodelcrashplayer(pid)
+soundcrashplayer(pid)
+attachcrashplayer(pid)
+--secrashplayer(pid)--
+end
+entity.set_entity_coords_no_offset(pedmy, mypos)
+entity.freeze_entity(pedmy, false)
+end)
+
+
 menu.add_player_feature("SE crash" , "toggle", playerparents["Player Crashes"], function(f, pid)
     script.trigger_script_event(-393294520, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
     script.trigger_script_event(-1386010354, pid, {pid, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647)})
@@ -10727,7 +10335,7 @@ menu.add_player_feature("Kick - Ped Component 2 Desync", "action", playerparents
 			ped.set_ped_head_blend_data(ped_, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			system.wait(3000)
 			script.trigger_script_event(-227800145, pid, {pid, math.random(32, 23647483647), math.random(-23647, 212347), 1, 115, math.random(-2321647, 21182412647), math.random(-2147483647, 2147483647), 26249, math.random(-1257483647, 23683647), 2623, 25136})
-			utilities.request_control(ped_)
+			utilities.request_control_silent(ped_)
 			entity.delete_entity(ped_)
 			menu.notify("Ped Component 2 Desync executed successfully.", AddictScript)
 		else
@@ -10974,7 +10582,7 @@ playerfeature["Vehicle Kick"]:set_str_data({"Kick", "Hard Lock"})
 playerfeature["Crash Car"] = menu.add_player_feature("Crash Car", "action", playerparents["Vehicle Options"].id, function(f, pid)
 	if player.is_player_in_any_vehicle(pid) then
 		utilities.request_model(165521376)
-		local object_ = object.create_object(165521376, utilities.offset_coords(player.get_player_coords(pid), player.get_player_heading(pid), 5), true, false)
+		local object_ = object.create_object(165521376, utilities.offset_coords_forward(player.get_player_coords(pid), player.get_player_heading(pid), 5), true, false)
 		entity.set_entity_rotation(object_, v3(0, 0, entity.get_entity_rotation(player.get_player_vehicle(pid)).z + 90))
 		entity.set_entity_visible(object_, false)
 		system.wait(2000)
@@ -11020,7 +10628,7 @@ playerfeature["Steal Vehicle"] = menu.add_player_feature("Steal Vehicle", "actio
 			utilities.request_model(0xB5CF80E4)
 			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 			local ped_ = ped.create_ped(0, 0xB5CF80E4, player.get_player_coords(pid) + v3(0, 0, 10), player.get_player_heading(pid), true, false)
-			utilities.request_control(ped_)
+			utilities.request_control_silent(ped_)
 			ped.set_ped_combat_attributes(ped_, 3, false)
 			ped.set_ped_into_vehicle(ped_, player_vehicle, -1)
 			gameplay.shoot_single_bullet_between_coords(entity.get_entity_coords(ped_), entity.get_entity_coords(ped_), 0, gameplay.get_hash_key("weapon_pistol"), player.get_player_ped(pid), false, true, 100)
@@ -11077,7 +10685,7 @@ playerfeature["Vehicle Godmode"] = menu.add_player_feature("Vehicle Godmode", "v
 		utilities.request_control(player.get_player_vehicle(pid))
 		while f.on do
 			system.yield(0)
-			utilities.request_control(player.get_player_vehicle(pid))
+			utilities.request_control_silent(player.get_player_vehicle(pid))
 			if f.value == 0 then
 				entity.set_entity_god_mode(player.get_player_vehicle(pid), true)
 			else
@@ -11086,7 +10694,7 @@ playerfeature["Vehicle Godmode"] = menu.add_player_feature("Vehicle Godmode", "v
 		end
 	end
 	if not f.on then
-		utilities.request_control(player.get_player_vehicle(pid))
+		utilities.request_control_silent(player.get_player_vehicle(pid))
 		if f.value == 0 then
 			entity.set_entity_god_mode(player.get_player_vehicle(pid), false)
 		else
@@ -11651,7 +11259,7 @@ end)
 playerfeature["Make Nearby Peds Hostile"] = menu.add_player_feature("Make Nearby Peds Hostile", "toggle", playerparents["Trolling"].id, function(f, pid)
 	while f.on do
 		system.yield(500)
-		local peds = entity_func.remove_player_entities(ped.get_all_peds(), 25, 100, true, true, player.get_player_coords(pid))
+		local peds = utilities.get_table_of_entities(ped.get_all_peds(), 25, 100, true, true, player.get_player_coords(pid))
     	for i = 1, #peds do
 			ped.set_ped_combat_ability(peds[i], 2)
 			ped.set_ped_combat_attributes(peds[i], 5, true)
@@ -11751,14 +11359,14 @@ playerfeature["Set Bounty"] = menu.add_player_feature("Set Bounty", "action_valu
 		if f.value == 0 then
 			for i = 0, 31 do
 				if player.is_player_valid(i) then
-					script.trigger_script_event(1370461707, i, {player.player_id(), pid, 1, input_val, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, script_func.get_global_9(), script_func.get_global_10()})
+					script.trigger_script_event(ScriptEvent["Set Bounty"], i, {player.player_id(), pid, 1, input_val, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, script_func.get_global_9(), script_func.get_global_10()})
 				end
 			end
 		end
 		if f.value == 1 then
 			for i = 0, 31 do
 				if player.is_player_valid(i) then
-					script.trigger_script_event(1370461707, i, {player.player_id(), pid, 1, input_val, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, script_func.get_global_9(), script_func.get_global_10()})
+					script.trigger_script_event(ScriptEvent["Set Bounty"], i, {player.player_id(), pid, 1, input_val, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, script_func.get_global_9(), script_func.get_global_10()})
 				end
 			end
 		end
@@ -11937,7 +11545,7 @@ playerfeature["Freeze Player"] = menu.add_player_feature("Freeze Player", "toggl
     while f.on do
         network.request_control_of_entity(player.get_player_ped(pid))
         native.call(0xC5F68BE9613E2D18, player.get_player_ped(pid), 1, -524452543453, -524452543453, -524452543453, -524452543453, -524452543453, -524452543453, 0, 1, 1, 1, 1, 1)
-		script.trigger_script_event(-93722397, pid, {player.player_id()})
+		script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id()})
         system.yield(0)
     end
 end)
@@ -11951,18 +11559,18 @@ playerfeature["Fire loop"] = menu.add_player_feature("Fire loop", "toggle", play
     end
 end)
 
-playerfeature["Send To Cayo Perico"] = menu.add_player_feature("Send To Cayo Perico", "action_value_str", playerparents["Griefing"].id, function(f, pid)
+playerfeature["Send To Cayo"] = menu.add_player_feature("Send To Cayo", "action_value_str", playerparents["Griefing"].id, function(f, pid)
 	if player.is_player_valid(pid) then
 		if f.value == 0 then
-			script.trigger_script_event(-910497748, pid, {player.player_id(), 0})
+			script.trigger_script_event(ScriptEvent["SendToCayo"], pid, {player.player_id(), 0})
 		elseif f.value == 1 then
-       		script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 3, 1})
+       		script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 3, 1})
 		elseif f.value == 2 then
-            script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 4, 1})
+            script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 4, 1})
 		elseif f.value == 3 then
-            script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 4, })
+            script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 4, })
 		elseif f.value == 4 then
-            script.trigger_script_event(-93722397, pid, {player.player_id(), pid, pid, 4, 0})
+            script.trigger_script_event(ScriptEvent["SendToCayo2"], pid, {player.player_id(), pid, pid, 4, 0})
         end
 	else
 		menu.notify("Invalid Player.", AddictScript, 3, 211)
@@ -11977,7 +11585,7 @@ end):set_str_data({
 
 playerfeature["Send To Warehouse"] = menu.add_player_feature("Send To Warehouse", "action", playerparents["Griefing"].id, function(f, pid)
 	if player.is_player_valid(pid) then
-		script.trigger_script_event(434937615, pid, {player.player_id(), 0, 1, math.random(1, 22)})
+		script.trigger_script_event(ScriptEvent["TeleportToWarehouse"], pid, {player.player_id(), 0, 1, math.random(1, 22)})
 	else
 		menu.notify("Invalid Player.", AddictScript, 3, 211)
 	end
@@ -11985,7 +11593,7 @@ end)
 
 playerfeature["Send To Mission"] = menu.add_player_feature("Send To Mission", "action", playerparents["Griefing"].id, function(f, pid)
 	if player.is_player_valid(pid) then
-		script.trigger_script_event(1858712297, pid, {player.player_id(), math.random(1, 7)})
+		script.trigger_script_event(ScriptEvent["ForceIntoMission"], pid, {player.player_id(), math.random(1, 7)})
 	else
 		menu.notify("Invalid Player.", AddictScript, 3, 211)
 	end
@@ -12062,7 +11670,7 @@ playerfeature["Give Burried Stashes"] = menu.add_player_feature("Give Burried St
 end)
 
 playerfeature["Give LD Organics Product"] = menu.add_player_feature("Give LD Organics Product", "action", playerparents["Give Collectibles"].id, function(f, pid)
-	for i = 0, 9 do
+	for i = 0, 99 do
 		script.trigger_script_event(ScriptEvent["Give Collectibles"], pid, {1, 9, i, 1, 1, 1})
 	end
 end)
@@ -12124,7 +11732,7 @@ playerfeature["Off The Radar"] = menu.add_player_feature("Off The Radar", "toggl
 	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) then
-			script.trigger_script_event(-162943635, pid, {player.player_id(), utils.time() - 60, utils.time(), 1, 1, script_func.get_global_main(pid)})
+			script.trigger_script_event(ScriptEvent["RemoteOffRadar"], pid, {player.player_id(), utils.time() - 60, utils.time(), 1, 1, script_func.get_global_main(pid)})
 			system.wait(5000)
 		else
 			f.on = false
@@ -12137,13 +11745,13 @@ end)
 playerfeature["Ceo Money Loop"] = menu.add_player_feature("Ceo Money Loop", "value_str", playerparents["Friendly"].id, function(f, pid)
 	if f.on then
 		if f.value == 0 then
-			script.trigger_script_event(245065909, pid, {pid, 10000, -1292453789, 0, script_func.get_global_main(pid), script_func.get_global_9(), script_func.get_global_10()})
+			script.trigger_script_event(ScriptEvent["CeoMoney"], pid, {pid, 10000, -1292453789, 0, script_func.get_global_main(pid), script_func.get_global_9(), script_func.get_global_10()})
 			system.wait(120100)
 		elseif f.value == 1 then
-			script.trigger_script_event(245065909, pid, {pid, 10000, -1292453789, 1, script_func.get_global_main(pid), script_func.get_global_9(), script_func.get_global_10()})
+			script.trigger_script_event(ScriptEvent["CeoMoney"], pid, {pid, 10000, -1292453789, 1, script_func.get_global_main(pid), script_func.get_global_9(), script_func.get_global_10()})
 			system.wait(60100)
 		elseif f.value == 2 then
-			script.trigger_script_event(245065909, pid, {pid, 30000, 198210293, 1, script_func.get_global_main(pid), script_func.get_global_9(), script_func.get_global_10()})
+			script.trigger_script_event(ScriptEvent["CeoMoney"], pid, {pid, 30000, 198210293, 1, script_func.get_global_main(pid), script_func.get_global_9(), script_func.get_global_10()})
 			system.wait(120100)
 		end
 	end
@@ -12204,36 +11812,6 @@ for i = 1, 20 do
 	system.yield(20)
 		end
 	end
-	return HANDLER_CONTINUE
-end)
-
-playerfeature["Money Loop"] = menu.add_player_feature("Money Loop", "toggle", playerparents["Friendly"].id, function(f, pid) --Credit to Jrukii for making this
-if f.on then
-if script.get_host_of_this_script() == pid then
-	script.trigger_script_event(1279059857, pid, {pid, 288807, 140707433584256})
-	script.trigger_script_event(1279059857, pid, {pid, 288808, 140707735690094})
-	script.trigger_script_event(1279059857, pid, {pid, 288809, 140707423584256})
-	script.trigger_script_event(1279059857, pid, {pid, 288810, 140707423584256})
-	script.trigger_script_event(1279059857, pid, {pid, 288811, 140707423584257})
-	script.trigger_script_event(1279059857, pid, {pid, 288812, 140709571067903})
-	script.trigger_script_event(1279059857, pid, {pid, 288806, 140707423584256})
-	script.trigger_script_event(1279059857, pid, {pid, 26003, 140707423584257})
-	system.yield(200)
-    script.trigger_script_event(1279059857, pid, {pid, 288807, 140728908420736})
-	script.trigger_script_event(1279059857, pid, {pid, 288808, 140729210526574})
-	script.trigger_script_event(1279059857, pid, {pid, 288809, 140728898420736})
-	script.trigger_script_event(1279059857, pid, {pid, 288810, 140728898420736})
-	script.trigger_script_event(1279059857, pid, {pid, 288811, 140728898420737})
-	script.trigger_script_event(1279059857, pid, {pid, 288812, 140731045904383})
-	script.trigger_script_event(1279059857, pid, {pid, 288806, 140728898420736})
-	script.trigger_script_event(1279059857, pid, {pid, 26003, 140728898420737})
-	system.yield(200)
-	else
-	f.on = false
-    	menu.notify("The player must be script host.", AddictScript, 3, 211)
-		return
-		  end
-		end
 	return HANDLER_CONTINUE
 end)
 
